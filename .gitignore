@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+nohup.out
+
+# 临时文件
+*.log
+*.tmp
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# 测试文件（可选保留）
+test-connection.html
+blog-debug.html
+blog-simple.html

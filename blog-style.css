@@ -1,0 +1,119 @@
+/* 博客页面专属样式 */
+
+.blog-header {
+    background: linear-gradient(135deg, #006eff 0%, #00c6ff 100%);
+    color: white;
+    text-align: center;
+    padding: 80px 20px;
+    margin-top: 0;
+}
+
+.blog-header h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.blog-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.blog-main {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.blog-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* 博客卡片 */
+.blog-card {
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 110, 255, 0.15);
+}
+
+.blog-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.blog-date {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.blog-category {
+    background: linear-gradient(135deg, #006eff 0%, #00c6ff 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.blog-title {
+    margin-bottom: 15px;
+}
+
+.blog-title a {
+    color: #2d3748;
+    text-decoration: none;
+    font-size: 1.8rem;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.blog-title a:hover {
+    color: #006eff;
+}
+
+.blog-excerpt {
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+}
+
+.read-more {
+    color: #006eff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.read-more:hover {
+    transform: translateX(5px);
+    color: #0052cc;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .blog-header h1 {
+        font-size: 2rem;
+    }
+
+    .blog-card {
+        padding: 25px;
+    }
+
+    .blog-title a {
+        font-size: 1.5rem;
+    }
+}

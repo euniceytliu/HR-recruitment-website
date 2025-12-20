@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 - Eunice</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="article-style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">Eunice</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="blog.html" class="nav-link active">博客</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 文章内容 -->
+    <main>
+        <div class="loading">正在加载文章...</div>
+    </main>
+
+    <!-- 底部 -->
+    <footer>
+        <h3>联系我</h3>
+        <div class="contact">
+            <p>📧 邮箱:eunice@tencent.com</p>
+            <p>📱 微信:请通过邮件获取</p>
+            <p>💼 LinkedIn:linkedin.com/in/eunice-liu</p>
+        </div>
+        <p class="copyright">&copy; 2025 Eunice. All rights reserved.</p>
+    </footer>
+
+    <!-- 引入Supabase客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // ========== Supabase配置 ==========
+        const SUPABASE_URL = 'https://gevvmjwjmpjhwczfuiru.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I'
+
+        let supabaseClient = null
+
+        function initSupabase() {
+            if (!supabaseClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            }
+            return supabaseClient
+        }
+
+        // ========== 数据库操作函数 ==========
+        
+        async function getArticleById(id) {
+            try {
+                const supabase = initSupabase()
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('id', id)
+                    .eq('published', true)
+                    .single()
+
+                if (error) {
+                    console.error('获取文章详情失败:', error)
+                    return null
+                }
+
+                return data
+            } catch (err) {
+                console.error('获取文章详情异常:', err)
+                return null
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString)
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            return `${year}-${month}-${day}`
+        }
+
+        function renderArticleDetail(article) {
+            if (!article) {
+                document.querySelector('main').innerHTML = '<div class="error">文章未找到</div>'
+                return
+            }
+
+            document.title = `${article.title} - Eunice`
+
+            const main = document.querySelector('main')
+            if (main) {
+                main.innerHTML = `
+                    <article class="article-detail">
+                        <header class="article-header">
+                            <div class="article-meta">
+                                <span class="article-date">📅 ${formatDate(article.created_at)}</span>
+                                <span class="article-category">${article.category || '未分类'}</span>
+                            </div>
+                            <h1 class="article-title">${article.title}</h1>
+                        </header>
+                        <div class="article-content">
+                            ${article.content}
+                        </div>
+                        <footer class="article-footer">
+                            <a href="blog.html" class="back-link">← 返回博客列表</a>
+                        </footer>
+                    </article>
+                `
+            }
+        }
+
+        // ========== 页面加载逻辑 ==========
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search)
+            const articleId = urlParams.get('id')
+
+            if (!articleId) {
+                document.querySelector('main').innerHTML = '<div class="error">未指定文章</div>'
+                return
+            }
+
+            try {
+                const article = await getArticleById(parseInt(articleId))
+                if (article) {
+                    renderArticleDetail(article)
+                } else {
+                    document.querySelector('main').innerHTML = '<div class="error">文章未找到</div>'
+                }
+            } catch (error) {
+                console.error('加载文章失败:', error)
+                document.querySelector('main').innerHTML = '<div class="error">加载文章失败</div>'
+            }
+        })
+    </script>
+</body>
+</html>
