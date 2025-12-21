@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>差异化申请 - 案例挑战</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 80px 20px 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: -40px auto 60px;
+            padding: 0 20px;
+        }
+
+        /* 价值主张 */
+        .value-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .value-section h2 {
+            font-size: 2.2em;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .value-item {
+            text-align: center;
+        }
+
+        .value-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .value-item h3 {
+            color: #1a202c;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .value-item p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        /* 案例展示 */
+        .cases-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .cases-section h2 {
+            text-align: center;
+            font-size: 2em;
+            color: #1a202c;
+            margin-bottom: 30px;
+        }
+
+        .case-card {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border-left: 5px solid #fa709a;
+            transition: all 0.3s ease;
+        }
+
+        .case-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(250, 112, 154, 0.2);
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .case-title {
+            font-size: 1.4em;
+            color: #1a202c;
+            font-weight: 700;
+        }
+
+        .case-difficulty {
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .difficulty-easy {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .difficulty-medium {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .difficulty-hard {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .case-description {
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .case-meta {
+            display: flex;
+            gap: 20px;
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .case-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .case-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(250, 112, 154, 0.4);
+        }
+
+        /* 提交表单 */
+        .submit-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .submit-section h2 {
+            text-align: center;
+            font-size: 2em;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #fa709a;
+            box-shadow: 0 0 0 3px rgba(250, 112, 154, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #fa709a;
+            background: #fff5f7;
+        }
+
+        .file-upload-icon {
+            font-size: 3em;
+            color: #fa709a;
+            margin-bottom: 10px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(250, 112, 154, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* 评审流程 */
+        .process-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .process-section h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 40px;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .process-step {
+            text-align: center;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .process-step h3 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .process-step p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* 成功案例 */
+        .success-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .success-section h2 {
+            text-align: center;
+            font-size: 2em;
+            color: #1a202c;
+            margin-bottom: 30px;
+        }
+
+        .testimonial {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-left: 5px solid #48bb78;
+        }
+
+        .testimonial-content {
+            font-style: italic;
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .author-info h4 {
+            color: #1a202c;
+            margin-bottom: 3px;
+        }
+
+        .author-info p {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .value-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .case-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .process-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+            display: block;
+        }
+
+        .alert.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">腾讯HR·职业成长伙伴</div>
+            <ul class="nav-menu">
+                <li><a href="index-new.html" class="nav-link">首页</a></li>
+                <li><a href="cognition.html" class="nav-link">认知腾讯HR</a></li>
+                <li><a href="diagnosis.html" class="nav-link">能力诊断</a></li>
+                <li><a href="application.html" class="nav-link active">差异化申请</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+        <h1>🚀 差异化申请通道</h1>
+        <p>参与案例研究，展示你的思考深度，赢得直通初试的机会</p>
+    </div>
+
+    <div class="container">
+        <!-- 价值主张 -->
+        <div class="value-section">
+            <h2>🌟 为什么选择案例挑战？</h2>
+            <p style="color: #4a5568; font-size: 1.1em; margin-bottom: 30px;">
+                简历只能展示过去，案例能证明未来。<br>
+                通过真实业务场景，让我们看到你的思维方式、分析能力和HR潜力。
+            </p>
+
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon">🎯</div>
+                    <h3>直通初试</h3>
+                    <p>优秀案例提交者无需简历筛选，直接进入面试环节</p>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">👨‍🏫</div>
+                    <h3>专家点评</h3>
+                    <p>腾讯资深HR亲自评审，获得专业反馈</p>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">📚</div>
+                    <h3>深度学习</h3>
+                    <p>接触真实业务场景，提前了解HR工作本质</p>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">🏆</div>
+                    <h3>能力证明</h3>
+                    <p>用作品说话，比简历更有说服力</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 案例库 -->
+        <div class="cases-section">
+            <h2>📂 案例挑战库</h2>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 30px;">
+                选择一个案例，提交你的解决方案（可选择多个案例提交）
+            </p>
+
+            <!-- 案例1 -->
+            <div class="case-card">
+                <div class="case-header">
+                    <div class="case-title">📊 案例一：校招转化率优化</div>
+                    <span class="case-difficulty difficulty-medium">中等难度</span>
+                </div>
+                <div class="case-description">
+                    <strong>背景：</strong>腾讯某事业群校招数据显示，简历投递量充足（5000+），但简历-笔试转化率仅12%，远低于行业平均水平（25%）。HR团队需要找出问题根因并提出解决方案。
+                    <br><br>
+                    <strong>任务：</strong>
+                    <ol style="margin: 10px 0; padding-left: 25px;">
+                        <li>分析可能的问题原因（至少3个维度）</li>
+                        <li>提出数据分析方案（需要收集哪些数据？如何分析？）</li>
+                        <li>设计优化措施（至少3个可落地的方案）</li>
+                        <li>预估优化后的效果及验证方法</li>
+                    </ol>
+                </div>
+                <div class="case-meta">
+                    <span>⏰ 建议用时：2-3小时</span>
+                    <span>🎯 考察能力：数据分析、问题诊断、流程优化</span>
+                </div>
+                <a href="#submit" class="case-btn" onclick="selectCase('案例一：校招转化率优化')">选择此案例 →</a>
+            </div>
+
+            <!-- 案例2 -->
+            <div class="case-card">
+                <div class="case-header">
+                    <div class="case-title">🎨 案例二：Z世代雇主品牌策划</div>
+                    <span class="case-difficulty difficulty-hard">高难度</span>
+                </div>
+                <div class="case-description">
+                    <strong>背景：</strong>腾讯希望在Z世代学生中提升雇主品牌吸引力。调研发现，学生对腾讯的认知停留在"大厂""稳定"，但缺乏情感连接和个性化认知。
+                    <br><br>
+                    <strong>任务：</strong>
+                    <ol style="margin: 10px 0; padding-left: 25px;">
+                        <li>分析Z世代学生的求职心理和偏好（基于调研或洞察）</li>
+                        <li>设计一个创新的校招活动/内容方案</li>
+                        <li>制定传播策略和渠道选择</li>
+                        <li>设计效果评估指标</li>
+                    </ol>
+                </div>
+                <div class="case-meta">
+                    <span>⏰ 建议用时：3-4小时</span>
+                    <span>🎯 考察能力：用户洞察、创意策划、内容设计</span>
+                </div>
+                <a href="#submit" class="case-btn" onclick="selectCase('案例二：Z世代雇主品牌策划')">选择此案例 →</a>
+            </div>
+
+            <!-- 案例3 -->
+            <div class="case-card">
+                <div class="case-header">
+                    <div class="case-title">🤝 案例三：新员工入职体验优化</div>
+                    <span class="case-difficulty difficulty-easy">入门难度</span>
+                </div>
+                <div class="case-description">
+                    <strong>背景：</strong>HR收到反馈：新员工入职后感到迷茫，不知道该找谁、该做什么，融入团队较慢。入职3个月离职率达15%，高于预期。
+                    <br><br>
+                    <strong>任务：</strong>
+                    <ol style="margin: 10px 0; padding-left: 25px;">
+                        <li>梳理新员工入职旅程（从offer到转正的关键节点）</li>
+                        <li>识别痛点和改进机会</li>
+                        <li>设计优化方案（流程、工具、内容等）</li>
+                        <li>提出实施计划和成功指标</li>
+                    </ol>
+                </div>
+                <div class="case-meta">
+                    <span>⏰ 建议用时：1.5-2小时</span>
+                    <span>🎯 考察能力：用户体验思维、同理心、流程设计</span>
+                </div>
+                <a href="#submit" class="case-btn" onclick="selectCase('案例三：新员工入职体验优化')">选择此案例 →</a>
+            </div>
+        </div>
+
+        <!-- 提交表单 -->
+        <div class="submit-section" id="submit">
+            <h2>📝 提交你的案例分析</h2>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 30px;">
+                填写完整信息并上传你的案例分析文档
+            </p>
+
+            <div id="alertBox" class="alert"></div>
+
+            <form id="caseForm" onsubmit="submitCase(event)">
+                <div class="form-group">
+                    <label>姓名 *</label>
+                    <input type="text" name="name" required placeholder="请输入你的真实姓名">
+                </div>
+
+                <div class="form-group">
+                    <label>联系方式 *</label>
+                    <input type="tel" name="phone" required placeholder="手机号码">
+                </div>
+
+                <div class="form-group">
+                    <label>邮箱 *</label>
+                    <input type="email" name="email" required placeholder="常用邮箱地址">
+                </div>
+
+                <div class="form-group">
+                    <label>学校及专业 *</label>
+                    <input type="text" name="school" required placeholder="如：清华大学-人力资源管理">
+                </div>
+
+                <div class="form-group">
+                    <label>选择案例 *</label>
+                    <select name="case" id="caseSelect" required>
+                        <option value="">请选择你要挑战的案例</option>
+                        <option value="案例一：校招转化率优化">案例一：校招转化率优化</option>
+                        <option value="案例二：Z世代雇主品牌策划">案例二：Z世代雇主品牌策划</option>
+                        <option value="案例三：新员工入职体验优化">案例三：新员工入职体验优化</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>你的思路简述（200-500字）*</label>
+                    <textarea name="summary" required placeholder="简要说明你的分析思路和核心观点..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>上传案例分析文档 *</label>
+                    <div class="file-upload" onclick="document.getElementById('caseFile').click()">
+                        <div class="file-upload-icon">📎</div>
+                        <p id="fileName">点击上传文档（PDF/Word/PPT，最大10MB）</p>
+                        <input type="file" id="caseFile" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx" required style="display: none;" onchange="updateFileName(event)">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">🚀 提交案例分析</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 20px; color: #718096; font-size: 0.9em;">
+                📌 提交后，我们将在<strong>5个工作日内</strong>完成评审并通过邮件反馈结果
+            </p>
+        </div>
+
+        <!-- 评审流程 -->
+        <div class="process-section">
+            <h2>⚡ 评审流程</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3>提交案例</h3>
+                    <p>填写信息并上传分析文档</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3>初审筛选</h3>
+                    <p>2个工作日内完成初审</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3>专家评审</h3>
+                    <p>资深HR详细评估案例质量</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3>结果反馈</h3>
+                    <p>邮件通知结果及专家点评</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">5</div>
+                    <h3>直通面试</h3>
+                    <p>优秀案例者直接进入初试</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成功案例 -->
+        <div class="success-section">
+            <h2>💬 往届优秀者说</h2>
+
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    "通过案例挑战，我第一次真正理解了HR的价值不是招人，而是帮助业务成功。评审老师的反馈非常专业，让我收获巨大。最终我通过案例直通了初试，现在已经成为腾讯HR培训生！"
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">L</div>
+                    <div class="author-info">
+                        <h4>李同学</h4>
+                        <p>北京大学 · 现腾讯HRBP</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    "我选择了雇主品牌案例，虽然最终方案不够成熟，但评审老师给了我详细的反馈和改进建议。这个过程本身就是一次深度学习。后来我按照建议补充经验，第二次申请成功拿到offer！"
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">Z</div>
+                    <div class="author-info">
+                        <h4>张同学</h4>
+                        <p>复旦大学 · 现腾讯招聘专员</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    "数据分析不是我的强项，但通过钻研案例，我学会了用数据思维看问题。案例挑战让我从'想做HR'变成'能做HR'。感谢这个机会让我证明了自己的潜力！"
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">W</div>
+                    <div class="author-info">
+                        <h4>王同学</h4>
+                        <p>上海交大 · 现腾讯数据分析师（HR方向）</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectCase(caseName) {
+            document.getElementById('caseSelect').value = caseName;
+            document.getElementById('submit').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateFileName(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = `已选择：${file.name}`;
+            }
+        }
+
+        function submitCase(event) {
+            event.preventDefault();
+            
+            // 显示成功提示
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = 'alert success';
+            alertBox.innerHTML = `
+                <strong>✅ 提交成功！</strong><br>
+                感谢你的参与！我们将在5个工作日内完成评审，并通过邮件发送结果和专家点评。<br>
+                请保持手机畅通，我们可能会电话联系你了解更多细节。
+            `;
+            
+            // 清空表单
+            document.getElementById('caseForm').reset();
+            document.getElementById('fileName').textContent = '点击上传文档（PDF/Word/PPT，最大10MB）';
+            
+            // 滚动到提示
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 实际应用中，这里应该调用后端API保存数据
+            // const formData = new FormData(event.target);
+            // fetch('/api/submit-case', { method: 'POST', body: formData })
+        }
+    </script>
+
+    <!-- 底部 -->
+    <footer style="background: #2d3748; color: white; padding: 40px 20px; text-align: center; margin-top: 60px;">
+        <h3 style="margin-bottom: 20px;">联系我们</h3>
+        <div style="margin-bottom: 20px;">
+            <p>📧 邮箱：hr-recruit@tencent.com</p>
+            <p>💼 公众号：腾讯HR招聘</p>
+        </div>
+        <p style="opacity: 0.7;">&copy; 2025 腾讯HR职业成长伙伴. All rights reserved.</p>
+    </footer>
+</body>
+</html>

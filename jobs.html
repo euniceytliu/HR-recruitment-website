@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>热招岗位 - 腾讯HR职业成长伙伴</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="jobs-style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">腾讯HR·职业成长伙伴</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="hr-day.html" class="nav-link">HR的一天</a></li>
+                <li><a href="hr-knowledge.html" class="nav-link">HR知识库</a></li>
+                <li><a href="jobs.html" class="nav-link active">热招岗位</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 顶部区域 -->
+    <header>
+        <h1>🔥 腾讯HR培训生热招</h1>
+        <p class="welcome">四大方向，总有一款适合你</p>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="jobs-main">
+        <div class="jobs-intro">
+            <h2>💼 人力资源培训生计划</h2>
+            <p>腾讯HR培训生项目为应届毕业生提供系统化的职业发展路径。根据你的特质和兴趣，我们提供<strong>四大专业方向</strong>，每个方向都有清晰的成长通道和导师支持。无论你擅长沟通协作、数据分析、创意策划还是产品技术，都能在这里找到属于你的舞台！</p>
+        </div>
+
+        <!-- 岗位列表 -->
+        <div class="jobs-container">
+            <div class="loading">正在加载岗位信息...</div>
+        </div>
+
+        <!-- 联系信息 -->
+        <div class="contact-section">
+            <h2>💬 联系我</h2>
+            <p>如果您对以上岗位感兴趣，或想了解更多职位信息，欢迎通过以下方式联系我：</p>
+            <div class="contact-info">
+                <p>📧 邮箱：eunice@tencent.com</p>
+                <p>💼 LinkedIn：linkedin.com/in/eunice-liu</p>
+                <p>📱 微信：请通过邮件获取</p>
+            </div>
+            <p class="tip">💡 小提示：投递简历时请注明您感兴趣的具体岗位和工作地点</p>
+        </div>
+    </main>
+
+    <!-- 底部 -->
+    <footer>
+        <h3>联系我</h3>
+        <div class="contact">
+            <p>📧 邮箱：eunice@tencent.com</p>
+            <p>📱 微信：请通过邮件获取</p>
+            <p>💼 LinkedIn：linkedin.com/in/eunice-liu</p>
+        </div>
+        <p class="copyright">&copy; 2025 Eunice. All rights reserved.</p>
+    </footer>
+
+    <!-- 引入Supabase客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // ========== Supabase配置 ==========
+        const SUPABASE_URL = 'https://gevvmjwjmpjhwczfuiru.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
+
+        // ========== 数据库操作函数 ==========
+        async function getJobs(limit = 100) {
+            try {
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .select('*')
+                    .eq('published', true)
+                    .order('is_hot', { ascending: false })
+                    .order('created_at', { ascending: false })
+                    .limit(limit);
+
+                if (error) {
+                    console.error('❌ 查询失败:', error);
+                    return [];
+                }
+
+                return data || [];
+            } catch (err) {
+                console.error('❌ 异常:', err);
+                return [];
+            }
+        }
+
+        // 渲染岗位列表
+        function renderJobList(jobs, containerId = 'jobs-container') {
+            const container = document.querySelector(`.${containerId}`);
+            if (!container) {
+                console.error('未找到容器:', containerId);
+                return;
+            }
+
+            if (!jobs || jobs.length === 0) {
+                container.innerHTML = '<p class="no-jobs" style="text-align: center; padding: 40px; color: #666;">暂无招聘岗位</p>';
+                return;
+            }
+
+            // 自定义排序：沟通型、分析型、创意型、产品技术型
+            const sortOrder = {
+                '沟通型': 1,
+                '分析型': 2,
+                '创意型': 3,
+                '产品技术': 4
+            };
+
+            const sortedJobs = jobs.sort((a, b) => {
+                let orderA = 999;
+                let orderB = 999;
+                
+                for (let key in sortOrder) {
+                    if (a.title.includes(key)) orderA = sortOrder[key];
+                    if (b.title.includes(key)) orderB = sortOrder[key];
+                }
+                
+                return orderA - orderB;
+            });
+
+            // 生成岗位卡片HTML
+            const jobsHTML = sortedJobs.map((job, index) => {
+                const hotBadge = job.is_hot ? `<div class="job-badge">🔥 热招</div>` : '';
+                const requirements = job.requirements ? job.requirements.map(req => `<li>${req}</li>`).join('') : '';
+                
+                // 根据类型添加不同的图标和颜色
+                let icon = '💼';
+                let colorClass = '';
+                if (job.title.includes('沟通型')) {
+                    icon = '💬';
+                    colorClass = 'job-communication';
+                } else if (job.title.includes('分析型')) {
+                    icon = '📊';
+                    colorClass = 'job-analysis';
+                } else if (job.title.includes('创意型')) {
+                    icon = '🎨';
+                    colorClass = 'job-creative';
+                } else if (job.title.includes('产品技术')) {
+                    icon = '⚙️';
+                    colorClass = 'job-product';
+                }
+                
+                return `
+                    <div class="job-card ${job.is_hot ? 'hot' : ''} ${colorClass}">
+                        ${hotBadge}
+                        <div class="job-icon">${icon}</div>
+                        <h3 class="job-title">${job.title}</h3>
+                        <div class="job-info">
+                            <span class="job-dept">📍 ${job.department || '未知部门'}</span>
+                            <span class="job-location">📌 ${job.location || '未知地点'}</span>
+                        </div>
+                        <div class="job-requirements">
+                            <h4>岗位要求：</h4>
+                            <ul>${requirements}</ul>
+                        </div>
+                        <a href="${job.apply_url || '#'}" class="apply-btn" target="_blank">立即申请 →</a>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = jobsHTML;
+        }
+
+        // ========== 页面加载逻辑 ==========
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (typeof window.supabase === 'undefined') {
+                console.error('❌ Supabase库未加载');
+                document.querySelector('.jobs-container').innerHTML = 
+                    '<p class="error">Supabase库加载失败</p>';
+                return;
+            }
+            
+            try {
+                console.log('开始加载岗位数据...');
+                const jobs = await getJobs();
+                console.log('获取到岗位数据:', jobs);
+                renderJobList(jobs, 'jobs-container');
+            } catch (error) {
+                console.error('❌ 加载失败:', error);
+                document.querySelector('.jobs-container').innerHTML = 
+                    '<p class="error">加载岗位信息失败: ' + error.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

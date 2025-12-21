@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岗位管理 - Eunice</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input {
+            width: auto;
+        }
+        .requirements-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .requirements-input input {
+            flex: 1;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-delete {
+            background-color: #f44336;
+        }
+        .btn-delete:hover {
+            background-color: #d32f2f;
+        }
+        .btn-secondary {
+            background-color: #2196F3;
+        }
+        .btn-secondary:hover {
+            background-color: #0b7dda;
+        }
+        .jobs-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .job-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">Eunice</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="blog.html" class="nav-link">博客</a></li>
+                <li><a href="jobs.html" class="nav-link">热招岗位</a></li>
+                <li><a href="jobs-admin-simple.html" class="nav-link active">岗位管理</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <h1>🔧 岗位信息管理</h1>
+
+    <!-- 消息提示 -->
+    <div id="message" class="message hidden"></div>
+
+    <!-- 添加岗位表单 -->
+    <div class="form-container">
+        <h2>添加新岗位</h2>
+        
+        <form id="jobForm">
+            <div class="form-group">
+                <label for="title">岗位名称 *</label>
+                <input type="text" id="title" required placeholder="例如：人力资源培训生">
+            </div>
+            
+            <div class="form-group">
+                <label for="department">部门</label>
+                <input type="text" id="department" placeholder="例如：HR">
+            </div>
+            
+            <div class="form-group">
+                <label for="location">工作地点</label>
+                <input type="text" id="location" placeholder="例如：深圳/北京">
+            </div>
+            
+            <div class="form-group">
+                <label>岗位要求（每行一个）</label>
+                <textarea id="requirements" rows="5" placeholder="一行一个要求，例如：&#10;具备不错的人际感知力，乐于并擅长沟通&#10;具有良好的逻辑思维和团队合作意识"></textarea>
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="isHot">
+                <label for="isHot">🔥 热招岗位</label>
+            </div>
+            
+            <div class="form-group">
+                <label for="applyUrl">申请链接</label>
+                <input type="url" id="applyUrl" placeholder="https://join.qq.com/...">
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="published" checked>
+                <label for="published">✅ 已发布</label>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">💾 保存岗位</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm()">🔄 重置表单</button>
+        </form>
+    </div>
+
+    <!-- 岗位列表 -->
+    <div class="form-container">
+        <h2>当前岗位列表</h2>
+        <div id="jobsListContainer">
+            <p>正在加载...</p>
+        </div>
+    </div>
+
+    <script>
+        // Supabase配置
+        const SUPABASE_URL = 'https://gevvmjwjmpjhwczfuiru.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
+
+        // ==================== 消息提示 ====================
+        function showMessage(text, type = 'success') {
+            const msgEl = document.getElementById('message');
+            msgEl.textContent = text;
+            msgEl.className = `message ${type}`;
+            msgEl.classList.remove('hidden');
+            
+            setTimeout(() => {
+                msgEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        // ==================== 数据库操作（使用原生fetch） ====================
+        async function supabaseRequest(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            };
+
+            const options = {
+                method,
+                headers
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                console.log(`📡 请求: ${method} ${endpoint}`);
+                console.log('📦 数据:', body);
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
+                const data = await response.json();
+
+                console.log('📨 响应:', response.status, data);
+
+                if (!response.ok) {
+                    throw new Error(data.message || '请求失败');
+                }
+
+                return { success: true, data };
+            } catch (error) {
+                console.error('❌ 错误:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 获取所有岗位
+        async function getAllJobs() {
+            const result = await supabaseRequest('jobs?select=*&order=is_hot.desc,created_at.desc');
+            return result.success ? result.data : [];
+        }
+
+        // 添加岗位
+        async function addJob(jobData) {
+            return await supabaseRequest('jobs', 'POST', jobData);
+        }
+
+        // 删除岗位
+        async function deleteJob(id) {
+            return await supabaseRequest(`jobs?id=eq.${id}`, 'DELETE');
+        }
+
+        // ==================== UI操作 ====================
+        function renderJobsList(jobs) {
+            const container = document.getElementById('jobsListContainer');
+            
+            if (!jobs || jobs.length === 0) {
+                container.innerHTML = '<p>暂无岗位信息</p>';
+                return;
+            }
+
+            const jobsHTML = `
+                <div class="jobs-list">
+                    ${jobs.map(job => `
+                        <div class="job-item">
+                            <h3>${job.title}</h3>
+                            <p><strong>部门:</strong> ${job.department || '未指定'}</p>
+                            <p><strong>地点:</strong> ${job.location || '未指定'}</p>
+                            <p><strong>状态:</strong> ${job.published ? '已发布' : '未发布'} ${job.is_hot ? '| 🔥 热招' : ''}</p>
+                            ${job.requirements && job.requirements.length > 0 ? `
+                                <p><strong>要求:</strong></p>
+                                <ul>${job.requirements.map(req => `<li>${req}</li>`).join('')}</ul>
+                            ` : ''}
+                            <button class="btn btn-delete" onclick="confirmDelete(${job.id}, '${job.title}')">🗑️ 删除</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            container.innerHTML = jobsHTML;
+        }
+
+        async function loadJobs() {
+            console.log('🔄 加载岗位列表...');
+            const jobs = await getAllJobs();
+            renderJobsList(jobs);
+        }
+
+        function resetForm() {
+            document.getElementById('jobForm').reset();
+            showMessage('表单已重置', 'success');
+        }
+
+        window.confirmDelete = async function(id, title) {
+            if (!confirm(`确定要删除岗位 "${title}" 吗？`)) {
+                return;
+            }
+
+            console.log(`🗑️ 删除岗位 ID:${id}`);
+            const result = await deleteJob(id);
+
+            if (result.success) {
+                showMessage('岗位删除成功！', 'success');
+                loadJobs();
+            } else {
+                showMessage('删除失败: ' + result.error, 'error');
+            }
+        };
+
+        // ==================== 表单提交 ====================
+        document.getElementById('jobForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ 提交中...';
+
+            // 收集表单数据
+            const requirementsText = document.getElementById('requirements').value.trim();
+            const requirements = requirementsText 
+                ? requirementsText.split('\n').map(r => r.trim()).filter(r => r !== '')
+                : [];
+
+            const jobData = {
+                title: document.getElementById('title').value.trim(),
+                department: document.getElementById('department').value.trim(),
+                location: document.getElementById('location').value.trim(),
+                requirements: requirements,
+                is_hot: document.getElementById('isHot').checked,
+                apply_url: document.getElementById('applyUrl').value.trim(),
+                published: document.getElementById('published').checked
+            };
+
+            console.log('📝 提交岗位数据:', jobData);
+
+            // 提交到数据库
+            const result = await addJob(jobData);
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💾 保存岗位';
+
+            if (result.success) {
+                showMessage('✅ 岗位添加成功！', 'success');
+                resetForm();
+                loadJobs();
+            } else {
+                showMessage('❌ 添加失败: ' + result.error, 'error');
+            }
+        });
+
+        // ==================== 页面加载完成 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 页面加载完成');
+            loadJobs();
+        });
+    </script>
+</body>
+</html>

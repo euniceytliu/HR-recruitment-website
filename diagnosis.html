@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能力诊断器 - 认识自我</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 80px 20px 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: -40px auto 60px;
+            padding: 0 20px;
+        }
+
+        /* 能力模型展示 */
+        .competency-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .competency-section h2 {
+            text-align: center;
+            font-size: 2em;
+            color: #1a202c;
+            margin-bottom: 30px;
+        }
+
+        .competency-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .competency-tab {
+            padding: 12px 25px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .competency-tab:hover {
+            border-color: #43e97b;
+        }
+
+        .competency-tab.active {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white;
+            border-color: transparent;
+        }
+
+        .competency-content {
+            display: none;
+        }
+
+        .competency-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .competency-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .competency-item {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #43e97b;
+        }
+
+        .competency-item h4 {
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .competency-item p {
+            color: #4a5568;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* 简历上传区域 */
+        .upload-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .upload-section h2 {
+            text-align: center;
+            font-size: 2em;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #f7fafc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #43e97b;
+            background: #f0fff4;
+        }
+
+        .upload-area.drag-over {
+            border-color: #43e97b;
+            background: #f0fff4;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #43e97b;
+        }
+
+        .upload-area p {
+            color: #4a5568;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .upload-area small {
+            color: #718096;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(67, 233, 123, 0.4);
+        }
+
+        /* 诊断结果 */
+        .result-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .result-header h2 {
+            font-size: 2.2em;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .overall-score {
+            font-size: 4em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
+        .score-label {
+            color: #4a5568;
+            font-size: 1.2em;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .result-card h3 {
+            color: #1a202c;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .strength-item, .improve-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .strength-item:last-child, .improve-item:last-child {
+            border-bottom: none;
+        }
+
+        .strength-item::before {
+            content: '✓';
+            color: #48bb78;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .improve-item::before {
+            content: '→';
+            color: #f6ad55;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .suggestion-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .suggestion-box h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .suggestion-box li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .suggestion-box li::before {
+            content: '💡';
+            position: absolute;
+            left: 0;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #43e97b;
+            border: 2px solid #43e97b;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 768px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .competency-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #43e97b;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">腾讯HR·职业成长伙伴</div>
+            <ul class="nav-menu">
+                <li><a href="index-new.html" class="nav-link">首页</a></li>
+                <li><a href="cognition.html" class="nav-link">认知腾讯HR</a></li>
+                <li><a href="diagnosis.html" class="nav-link active">能力诊断</a></li>
+                <li><a href="application.html" class="nav-link">差异化申请</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+        <h1>🎯 能力诊断器</h1>
+        <p>了解你的优势，发现提升空间，获得个性化成长建议</p>
+    </div>
+
+    <div class="container">
+        <!-- 能力模型展示 -->
+        <div class="competency-section">
+            <h2>📊 腾讯HR能力要求</h2>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 30px;">基于沟通型、分析型、创意型岗位要求梳理</p>
+
+            <div class="competency-tabs">
+                <div class="competency-tab active" onclick="switchCompetency('communication')">💬 沟通型</div>
+                <div class="competency-tab" onclick="switchCompetency('analysis')">📊 分析型</div>
+                <div class="competency-tab" onclick="switchCompetency('creative')">🎨 创意型</div>
+            </div>
+
+            <!-- 沟通型 -->
+            <div id="comp-communication" class="competency-content active">
+                <div class="competency-list">
+                    <div class="competency-item">
+                        <h4>人际敏感度</h4>
+                        <p>快速感知他人情绪和需求，建立信任关系，善于倾听和同理</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>沟通表达能力</h4>
+                        <p>清晰准确传达信息，适应不同对象调整沟通方式，善于说服和影响</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>协调整合能力</h4>
+                        <p>平衡多方需求，推动跨部门协作，解决冲突，达成共识</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>服务意识</h4>
+                        <p>以候选人/员工为中心，提供优质体验，主动发现并解决问题</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>情绪管理</h4>
+                        <p>保持积极心态，应对压力和挫折，营造正向氛围</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>影响力</h4>
+                        <p>获得他人信任，推动决策和行动，建立个人品牌</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分析型 -->
+            <div id="comp-analysis" class="competency-content">
+                <div class="competency-list">
+                    <div class="competency-item">
+                        <h4>数据分析能力</h4>
+                        <p>收集、处理和分析招聘数据，识别趋势和模式，制作可视化报表</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>逻辑思维</h4>
+                        <p>结构化思考问题，建立因果关系，提出合理假设和验证</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>问题诊断</h4>
+                        <p>快速定位问题根因，区分症状和本质，提出解决方案</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>业务理解</h4>
+                        <p>理解公司战略和部门目标，将HR工作与业务需求结合</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>流程优化</h4>
+                        <p>发现效率瓶颈，设计改进方案，推动流程标准化</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>工具应用</h4>
+                        <p>熟练使用Excel、BI工具、HRIS系统，拥抱新技术</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 创意型 -->
+            <div id="comp-creative" class="competency-content">
+                <div class="competency-list">
+                    <div class="competency-item">
+                        <h4>创新思维</h4>
+                        <p>跳出固有框架，提出新颖想法，敢于尝试和实验</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>用户体验设计</h4>
+                        <p>从候选人/员工视角设计流程和活动，注重每个触点的体验</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>内容策划</h4>
+                        <p>撰写吸引人的文案，设计有趣的活动，打造雇主品牌</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>项目执行</h4>
+                        <p>将创意转化为现实，统筹资源，把控细节，确保落地</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>美感与设计</h4>
+                        <p>具备基本审美能力，懂得视觉呈现，使用设计工具</p>
+                    </div>
+                    <div class="competency-item">
+                        <h4>趋势洞察</h4>
+                        <p>关注行业动态，理解Z世代特征，把握潮流趋势</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 简历上传 -->
+        <div class="upload-section">
+            <h2>📤 上传简历，开始诊断</h2>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 30px;">
+                我们将基于腾讯HR能力模型，智能分析你的简历<br>
+                给出优势分析和提升建议
+            </p>
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📄</div>
+                <p><strong>点击选择文件</strong> 或拖拽文件到这里</p>
+                <small>支持 PDF、Word、TXT 格式，最大 5MB</small>
+                <div class="upload-btn" style="margin-top: 20px;">选择文件</div>
+            </div>
+
+            <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" onchange="handleFileSelect(event)">
+
+            <p style="text-align: center; margin-top: 20px; color: #718096; font-size: 0.9em;">
+                🔒 你的简历信息将被加密处理，仅用于能力诊断，不会泄露给第三方
+            </p>
+        </div>
+
+        <!-- 加载中 -->
+        <div class="loading" id="loadingSection">
+            <div class="spinner"></div>
+            <p style="color: #4a5568; font-size: 1.1em;">正在分析你的简历，请稍候...</p>
+        </div>
+
+        <!-- 诊断结果 -->
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <h2>📊 你的能力诊断报告</h2>
+                <div class="overall-score" id="overallScore">85</div>
+                <div class="score-label">综合匹配度</div>
+                <p style="color: #4a5568; margin-top: 15px;">基于<span id="analysisBasis" style="font-weight: bold; color: #43e97b;">沟通型</span>岗位要求分析</p>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-card" style="background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);">
+                    <h3>✅ 你的优势</h3>
+                    <div id="strengthsList"></div>
+                </div>
+
+                <div class="result-card" style="background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);">
+                    <h3>📈 需要提升</h3>
+                    <div id="improveList"></div>
+                </div>
+            </div>
+
+            <div class="suggestion-box">
+                <h4>💡 个性化成长建议</h4>
+                <ul id="suggestionsList"></ul>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="application.html" class="cta-btn btn-primary">参与案例挑战 →</a>
+                <a href="cognition.html" class="cta-btn btn-secondary">了解更多HR工作</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换
+        function switchCompetency(type) {
+            document.querySelectorAll('.competency-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.competency-tab').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('comp-' + type).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 文件拖拽
+        const uploadArea = document.getElementById('uploadArea');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.remove('drag-over');
+            });
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // 文件选择处理
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            // 显示加载状态
+            document.getElementById('loadingSection').classList.add('show');
+            
+            // 模拟AI分析（实际应该调用后端API）
+            setTimeout(() => {
+                analyzResume(file);
+            }, 2000);
+        }
+
+        function analyzeResume(file) {
+            // 隐藏加载，显示结果
+            document.getElementById('loadingSection').classList.remove('show');
+            document.getElementById('resultSection').classList.add('show');
+
+            // 模拟诊断结果（实际应该从后端获取）
+            const mockResult = {
+                score: 85,
+                type: '沟通型',
+                strengths: [
+                    '具备丰富的学生组织经历，体现出色的沟通协调能力',
+                    '多次策划大型活动，展现项目管理和团队协作能力',
+                    '志愿者经历丰富，具备良好的服务意识',
+                    '社团负责人经历体现leadership和影响力'
+                ],
+                improvements: [
+                    '缺少数据分析相关经验，建议补充数据处理项目',
+                    '对HR专业知识的学习较少，建议系统学习HR知识',
+                    '缺少商业实践经验，可参加商业案例大赛',
+                    '简历中未体现对新技术的应用，建议学习HR Tech工具'
+                ],
+                suggestions: [
+                    '参加腾讯HR案例挑战，深度了解真实业务场景',
+                    '学习Excel/Python数据分析，补充分析能力',
+                    '阅读推荐书籍：《人才招聘与选拔》《数据化管理》',
+                    '关注"腾讯HR招聘"公众号，了解行业动态',
+                    '参加SHRM/ATD等HR专业认证课程'
+                ]
+            };
+
+            // 渲染结果
+            document.getElementById('overallScore').textContent = mockResult.score;
+            document.getElementById('analysisBasis').textContent = mockResult.type;
+
+            // 渲染优势
+            const strengthsHTML = mockResult.strengths.map(item => 
+                `<div class="strength-item">${item}</div>`
+            ).join('');
+            document.getElementById('strengthsList').innerHTML = strengthsHTML;
+
+            // 渲染需提升
+            const improvementsHTML = mockResult.improvements.map(item => 
+                `<div class="improve-item">${item}</div>`
+            ).join('');
+            document.getElementById('improveList').innerHTML = improvementsHTML;
+
+            // 渲染建议
+            const suggestionsHTML = mockResult.suggestions.map(item => 
+                `<li>${item}</li>`
+            ).join('');
+            document.getElementById('suggestionsList').innerHTML = suggestionsHTML;
+
+            // 滚动到结果
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>

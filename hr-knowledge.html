@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR知识库 - 职业成长伙伴</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 80px 20px 60px;
+            text-align: center;
+        }
+
+        .hero-section h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .hero-section p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: -40px auto 60px;
+            padding: 0 20px;
+        }
+
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .knowledge-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .knowledge-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .card-header h2 {
+            font-size: 1.8em;
+            margin: 0 0 10px 0;
+            position: relative;
+        }
+
+        .card-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .skill-section {
+            margin-bottom: 25px;
+        }
+
+        .skill-section h3 {
+            color: #1a1a1a;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skill-section h3::before {
+            content: '▸';
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .skill-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .skill-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .skill-list li:last-child {
+            border-bottom: none;
+        }
+
+        .skill-list li::before {
+            content: '✓';
+            color: #4facfe;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .case-study h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+
+        .case-study p {
+            margin: 0;
+            opacity: 0.95;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .resources {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .resources h4 {
+            color: #1a1a1a;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .resource-link {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .resource-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .resource-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .resource-link:hover .resource-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .jd-decoder {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .jd-decoder h2 {
+            color: #1a1a1a;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .jd-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .jd-column {
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .jd-surface {
+            background: #fff5f5;
+            border-left: 4px solid #f5576c;
+        }
+
+        .jd-deep {
+            background: #f0f8ff;
+            border-left: 4px solid #4facfe;
+        }
+
+        .jd-column h3 {
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+
+        .jd-column ul {
+            padding-left: 20px;
+        }
+
+        .jd-column li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .knowledge-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .jd-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-section h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">腾讯HR·职业成长伙伴</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="hr-day.html" class="nav-link">HR的一天</a></li>
+                <li><a href="hr-knowledge.html" class="nav-link active">HR知识库</a></li>
+                <li><a href="jobs.html" class="nav-link">热招岗位</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <div class="hero-section">
+        <h1>📚 HR知识库</h1>
+        <p>不只是JD，更是JD背后的"说明书"<br>构建你的HR岗位知识体系，从理解核心能力到掌握实战技能</p>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="container">
+        <!-- JD解读器 -->
+        <div class="jd-decoder">
+            <h2>🔍 JD解读器：看懂职位描述背后的真实需求</h2>
+            <p style="text-align: center; color: #666; font-size: 1.1em; margin-bottom: 30px;">
+                同样一句话，表面和深层含义可能完全不同。让我们来解码腾讯HR岗位的真实需求。
+            </p>
+            
+            <div class="jd-comparison">
+                <div class="jd-column jd-surface">
+                    <h3>📄 JD上这样写</h3>
+                    <ul>
+                        <li><strong>"负责校招全流程"</strong></li>
+                        <li><strong>"协助组织面试"</strong></li>
+                        <li><strong>"维护候选人关系"</strong></li>
+                        <li><strong>"参与雇主品牌建设"</strong></li>
+                        <li><strong>"数据分析与报告"</strong></li>
+                    </ul>
+                </div>
+                
+                <div class="jd-column jd-deep">
+                    <h3>💡 实际需要你具备</h3>
+                    <ul>
+                        <li><strong>项目管理能力</strong> - 统筹简历筛选、面试安排、offer发放等多个环节，确保时间节点</li>
+                        <li><strong>人际敏感度</strong> - 快速识别面试官和候选人的需求，营造良好面试氛围</li>
+                        <li><strong>同理心与沟通力</strong> - 理解候选人诉求，提供个性化体验，建立长期联系</li>
+                        <li><strong>创意策划能力</strong> - 策划校园宣讲、社交媒体内容，吸引Z世代人才</li>
+                        <li><strong>数据思维</strong> - 分析招聘漏斗，发现问题，提出优化方案</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心能力卡片 -->
+        <div class="knowledge-grid">
+            <!-- 招聘岗位 -->
+            <div class="knowledge-card">
+                <div class="card-header">
+                    <span class="card-icon">🎯</span>
+                    <h2>招聘专员/HR BP</h2>
+                    <p>连接人才与业务的桥梁</p>
+                </div>
+                <div class="card-body">
+                    <div class="skill-section">
+                        <h3>核心能力要求</h3>
+                        <ul class="skill-list">
+                            <li><strong>人才洞察力</strong> - 透过简历看本质，识别潜力与文化匹配度</li>
+                            <li><strong>业务理解力</strong> - 深入理解部门需求，成为业务部门的战略伙伴</li>
+                            <li><strong>数据分析能力</strong> - 掌握招聘漏斗、转化率等关键指标</li>
+                            <li><strong>沟通协调能力</strong> - 平衡候选人、面试官、业务Leader的需求</li>
+                            <li><strong>快速学习能力</strong> - 快速了解不同技术岗位、业务模式</li>
+                        </ul>
+                    </div>
+
+                    <div class="case-study">
+                        <h4>🌟 腾讯真实案例</h4>
+                        <p>某游戏工作室急需一位策划Leader，HR同学不仅看候选人的策划经验，还深入研究了该工作室的产品风格，最终找到一位有MMO游戏经验且理解年轻用户心理的候选人，成为团队核心。</p>
+                    </div>
+
+                    <div class="resources">
+                        <h4>📖 推荐学习资源</h4>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">📚</div>
+                            <div>
+                                <strong>《人才招聘与选拔》</strong><br>
+                                <small>系统学习招聘理论与方法</small>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">🎓</div>
+                            <div>
+                                <strong>Coursera: People Analytics</strong><br>
+                                <small>数据驱动的招聘决策</small>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">🔗</div>
+                            <div>
+                                <strong>LinkedIn Talent Blog</strong><br>
+                                <small>行业前沿招聘趋势</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 培训与发展岗位 -->
+            <div class="knowledge-card">
+                <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <span class="card-icon">📈</span>
+                    <h2>培训与发展</h2>
+                    <p>助力员工成长的导师</p>
+                </div>
+                <div class="card-body">
+                    <div class="skill-section">
+                        <h3>核心能力要求</h3>
+                        <ul class="skill-list">
+                            <li><strong>课程设计能力</strong> - 将业务需求转化为有效的培训方案</li>
+                            <li><strong>学习理论知识</strong> - 了解成人学习原理、教学法</li>
+                            <li><strong>项目管理能力</strong> - 统筹培训项目的策划、执行、评估</li>
+                            <li><strong>演讲与表达</strong> - 作为讲师传递知识，激发学习兴趣</li>
+                            <li><strong>数据分析能力</strong> - 评估培训效果，持续优化</li>
+                        </ul>
+                    </div>
+
+                    <div class="case-study">
+                        <h4>🌟 腾讯真实案例</h4>
+                        <p>针对新入职工程师，设计了"技术+文化"双轨培训体系。不仅讲解代码规范，还通过游戏化方式让新人快速融入团队文化，3个月转正率提升至95%。</p>
+                    </div>
+
+                    <div class="resources">
+                        <h4>📖 推荐学习资源</h4>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">📚</div>
+                            <div>
+                                <strong>《培训师的21项技能修炼》</strong><br>
+                                <small>从入门到精通的实战指南</small>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">🎓</div>
+                            <div>
+                                <strong>ATD (人才发展协会) 认证</strong><br>
+                                <small>全球认可的专业资质</small>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">🎥</div>
+                            <div>
+                                <strong>TED: How We Learn</strong><br>
+                                <small>前沿学习科学研究</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HRBP岗位 -->
+            <div class="knowledge-card">
+                <div class="card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <span class="card-icon">🤝</span>
+                    <h2>HRBP (业务伙伴)</h2>
+                    <p>战略与执行的连接者</p>
+                </div>
+                <div class="card-body">
+                    <div class="skill-section">
+                        <h3>核心能力要求</h3>
+                        <ul class="skill-list">
+                            <li><strong>业务敏锐度</strong> - 理解业务战略，提供人力资源解决方案</li>
+                            <li><strong>战略思维</strong> - 从HR视角支持业务目标达成</li>
+                            <li><strong>变革管理</strong> - 推动组织变革，提升团队效能</li>
+                            <li><strong>影响力</strong> - 获得业务Leader的信任，推动HR政策落地</li>
+                            <li><strong>问题解决能力</strong> - 处理复杂的人事问题和团队冲突</li>
+                        </ul>
+                    </div>
+
+                    <div class="case-study">
+                        <h4>🌟 腾讯真实案例</h4>
+                        <p>某事业群面临组织架构调整，HRBP深度参与，从人员盘点、能力评估到新组织设计，全程提供专业支持。成功实现平稳过渡，员工满意度不降反升。</p>
+                    </div>
+
+                    <div class="resources">
+                        <h4>📖 推荐学习资源</h4>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">📚</div>
+                            <div>
+                                <strong>《华为HRBP实战》</strong><br>
+                                <small>中国本土化BP实践</small>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">🎓</div>
+                            <div>
+                                <strong>SHRM-CP/SCP 认证</strong><br>
+                                <small>国际人力资源专业认证</small>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon">🔗</div>
+                            <div>
+                                <strong>Harvard Business Review - HR</strong><br>
+                                <small>战略人力资源管理思想</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="jd-decoder" style="text-align: center; margin-top: 60px;">
+            <h2>🚀 准备好开始你的HR职业之旅了吗？</h2>
+            <p style="font-size: 1.1em; color: #666; margin-bottom: 30px;">
+                从知识到实践，从理解到行动，腾讯HR岗位等你来挑战！
+            </p>
+            <a href="jobs.html" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 1.1em;">
+                查看热招岗位 →
+            </a>
+            <a href="hr-day.html" style="display: inline-block; background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 1.1em; margin-left: 20px;">
+                体验HR的一天 →
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 添加卡片点击展开效果
+        document.querySelectorAll('.knowledge-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('.resource-link')) {
+                    this.classList.toggle('expanded');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

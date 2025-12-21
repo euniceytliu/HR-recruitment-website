@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>腾讯HR职业成长伙伴 - 开启你的HR之旅</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 20px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 700;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .hero-btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* 三大核心模块 */
+        .core-sections {
+            max-width: 1200px;
+            margin: -60px auto 80px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            border-top: 5px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.02) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .section-card:hover::before {
+            opacity: 1;
+        }
+
+        .section-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .card-cognition {
+            border-top-color: #4facfe;
+        }
+
+        .card-diagnosis {
+            border-top-color: #43e97b;
+        }
+
+        .card-application {
+            border-top-color: #fa709a;
+        }
+
+        .section-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
+        }
+
+        .section-card h2 {
+            color: #1a202c;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .section-card p {
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            font-size: 1.05em;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #2d3748;
+            font-size: 0.95em;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .section-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .section-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .section-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 价值主张 */
+        .value-prop {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .value-prop h2 {
+            font-size: 2.5em;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+
+        .value-prop p {
+            font-size: 1.2em;
+            color: #4a5568;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            line-height: 1.8;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #4a5568;
+            font-size: 1.1em;
+        }
+
+        /* 流程步骤 */
+        .journey {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .journey h2 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #1a202c;
+            margin-bottom: 60px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            position: relative;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .step h3 {
+            color: #1a202c;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .step p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+
+            .hero p {
+                font-size: 1.1em;
+            }
+
+            .core-sections {
+                grid-template-columns: 1fr;
+                margin-top: -40px;
+            }
+
+            .value-prop h2 {
+                font-size: 2em;
+            }
+
+            .journey h2 {
+                font-size: 2em;
+            }
+        }
+
+        /* 动画 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">腾讯HR·职业成长伙伴</div>
+            <ul class="nav-menu">
+                <li><a href="index-new.html" class="nav-link active">首页</a></li>
+                <li><a href="cognition.html" class="nav-link">认知腾讯HR</a></li>
+                <li><a href="diagnosis.html" class="nav-link">能力诊断</a></li>
+                <li><a href="application.html" class="nav-link">差异化申请</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero区域 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>🌟 开启你的腾讯HR职业之旅</h1>
+            <p>从认知到诊断，从准备到申请<br>全方位陪伴你成为优秀的HR人才</p>
+            <div class="hero-buttons">
+                <a href="cognition.html" class="hero-btn btn-primary">
+                    <span>🔍 了解腾讯HR</span>
+                </a>
+                <a href="diagnosis.html" class="hero-btn btn-secondary">
+                    <span>📊 诊断我的能力</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 三大核心模块 -->
+    <section class="core-sections">
+        <!-- 模块一：认知 -->
+        <div class="section-card card-cognition">
+            <span class="section-icon">🧠</span>
+            <h2>认知：打开视野</h2>
+            <p>腾讯HR到底是做什么的？能创造什么价值？AI时代下HR的未来在哪里？</p>
+            <ul class="feature-list">
+                <li>沉浸式体验：腾讯HR的一天</li>
+                <li>优秀实践：真实案例与成果分享</li>
+                <li>前沿洞察：AI时代HR的转型与机遇</li>
+            </ul>
+            <a href="cognition.html" class="section-btn">
+                <span>开始探索 →</span>
+            </a>
+        </div>
+
+        <!-- 模块二：诊断 -->
+        <div class="section-card card-diagnosis">
+            <span class="section-icon">🎯</span>
+            <h2>诊断：认识自我</h2>
+            <p>你具备哪些HR能力？还需要提升什么？智能简历诊断给你专业建议。</p>
+            <ul class="feature-list">
+                <li>能力模型：沟通型/分析型/创意型要求</li>
+                <li>简历诊断：AI智能分析你的优劣势</li>
+                <li>成长建议：个性化的提升路径</li>
+            </ul>
+            <a href="diagnosis.html" class="section-btn">
+                <span>开始诊断 →</span>
+            </a>
+        </div>
+
+        <!-- 模块三：申请 -->
+        <div class="section-card card-application">
+            <span class="section-icon">🚀</span>
+            <h2>申请：脱颖而出</h2>
+            <p>参与案例研究，展示你的思考深度。通过评估即可获得直通初试的机会！</p>
+            <ul class="feature-list">
+                <li>案例挑战：真实的HR业务场景</li>
+                <li>专家评审：资深HR亲自点评</li>
+                <li>快速通道：优秀者直通初试</li>
+            </ul>
+            <a href="application.html" class="section-btn">
+                <span>参与挑战 →</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- 价值主张 -->
+    <section class="value-prop">
+        <h2>💡 为什么选择这条路径？</h2>
+        <p>不只是招聘，而是帮助你真正理解HR、认识自己、找到匹配。<br>我们相信，双向选择的前提是双向了解。</p>
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number">10000+</span>
+                <span class="stat-label">学生访问</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">95%</span>
+                <span class="stat-label">满意度</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">200+</span>
+                <span class="stat-label">成功入职</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 成长路径 -->
+    <section class="journey">
+        <h2>📈 你的成长路径</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>认知阶段</h3>
+                <p>了解腾讯HR的工作内容、价值创造和未来趋势</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>诊断阶段</h3>
+                <p>上传简历，获得能力诊断和个性化建议</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>提升阶段</h3>
+                <p>根据建议补足经验，参与案例研究</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>申请阶段</h3>
+                <p>提交案例，通过评估直通初试</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer style="background: #2d3748; color: white; padding: 40px 20px; text-align: center;">
+        <h3 style="margin-bottom: 20px;">联系我们</h3>
+        <div style="margin-bottom: 20px;">
+            <p>📧 邮箱：hr-recruit@tencent.com</p>
+            <p>💼 公众号：腾讯HR招聘</p>
+        </div>
+        <p style="opacity: 0.7;">&copy; 2025 腾讯HR职业成长伙伴. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 滚动动画
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section-card, .step').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
