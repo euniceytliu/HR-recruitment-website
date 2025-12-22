@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试Supabase连接</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            max-width: 800px; 
+            margin: 0 auto;
+        }
+        .status { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        pre { 
+            background: #f4f4f4; 
+            padding: 10px; 
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Supabase连接测试</h1>
+    <div id="results"></div>
+
+    <!-- 引入Supabase客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function addStatus(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+
+        async function testConnection() {
+            // 测试1: 检查Supabase库是否加载
+            addStatus('✓ 步骤1: Supabase库已加载', 'success');
+            
+            // 测试2: 配置信息
+            const SUPABASE_URL = 'https://gevvmjwjmpjhwczfuiru.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
+            
+            addStatus(`✓ 步骤2: URL配置: ${SUPABASE_URL}`, 'success');
+            
+            // 测试3: 创建客户端
+            try {
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                addStatus('✓ 步骤3: Supabase客户端创建成功', 'success');
+                
+                // 测试4: 读取数据
+                addStatus('🔄 步骤4: 正在从数据库读取文章...', 'info');
+                
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('id, title, category, created_at')
+                    .eq('published', true)
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    addStatus(`❌ 错误: ${error.message}<br><pre>${JSON.stringify(error, null, 2)}</pre>`, 'error');
+                } else if (!data || data.length === 0) {
+                    addStatus('⚠️ 警告: 数据库返回空结果', 'error');
+                } else {
+                    addStatus(`✓ 步骤4: 成功读取 ${data.length} 篇文章`, 'success');
+                    addStatus(`<strong>文章列表:</strong><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                }
+            } catch (err) {
+                addStatus(`❌ 异常: ${err.message}<br><pre>${err.stack}</pre>`, 'error');
+            }
+        }
+
+        // 页面加载时执行测试
+        if (typeof window.supabase !== 'undefined') {
+            testConnection();
+        } else {
+            addStatus('❌ Supabase库未加载', 'error');
+        }
+    </script>
+</body>
+</html>
