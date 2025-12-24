@@ -2,6 +2,10 @@
 .git-credentials
 *.token
 
+# API密钥文件（重要！不要上传到GitHub）
+zhipu-api-config.js
+claude-api-config.js
+
 # 临时文件
 *.sh
 推送指南.md

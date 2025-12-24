@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI评估标准配置管理器</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 40px;
+        }
+
+        .config-section {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .config-section h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .config-item {
+            margin-bottom: 20px;
+        }
+
+        .config-item label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .config-item input[type="number"],
+        .config-item select {
+            width: 200px;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .config-item input[type="range"] {
+            width: 300px;
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 15px;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .example-box {
+            background: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .example-box h4 {
+            color: #1890ff;
+            margin-bottom: 10px;
+        }
+
+        .keyword-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .tag.tier1 { background: #f56565; }
+        .tag.tier2 { background: #ed8936; }
+        .tag.tier3 { background: #48bb78; }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .status-message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .weight-bar {
+            background: #e2e8f0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .weight-fill {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ AI评估标准配置管理器</h1>
+        <p class="subtitle">调整AI的评估逻辑，让它更符合你的真实评估标准</p>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- 评分严格度 -->
+        <div class="config-section">
+            <h2>📊 评分严格度设置</h2>
+            
+            <div class="config-item">
+                <label>整体严格度</label>
+                <select id="strictness" onchange="updateConfig()">
+                    <option value="lenient">宽松（容易高分）</option>
+                    <option value="balanced" selected>平衡（推荐）</option>
+                    <option value="strict">严格（不易高分）</option>
+                </select>
+            </div>
+
+            <div class="grid-2">
+                <div class="config-item">
+                    <label>优秀线（90-100分）</label>
+                    <input type="range" id="excellentScore" min="85" max="95" value="90" oninput="updateScoreDisplay()">
+                    <span class="value-display" id="excellentDisplay">90</span>
+                </div>
+
+                <div class="config-item">
+                    <label>良好线（80-89分）</label>
+                    <input type="range" id="goodScore" min="75" max="90" value="80" oninput="updateScoreDisplay()">
+                    <span class="value-display" id="goodDisplay">80</span>
+                </div>
+
+                <div class="config-item">
+                    <label>及格线（70-79分）</label>
+                    <input type="range" id="acceptableScore" min="65" max="80" value="70" oninput="updateScoreDisplay()">
+                    <span class="value-display" id="acceptableDisplay">70</span>
+                </div>
+
+                <div class="config-item">
+                    <label>需改进线（60-69分）</label>
+                    <input type="range" id="needImproveScore" min="55" max="70" value="60" oninput="updateScoreDisplay()">
+                    <span class="value-display" id="needImproveDisplay">60</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 岗位类型权重 -->
+        <div class="config-section">
+            <h2>⚖️ 岗位类型能力权重配置</h2>
+            
+            <h3 style="color: #4a5568; margin-top: 20px;">💬 沟通型岗位</h3>
+            <div class="config-item">
+                <label>人际敏感度</label>
+                <input type="range" id="comm_interpersonal" min="0" max="50" value="25" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_interpersonal_display">25%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="comm_interpersonal_bar" style="width: 25%">25%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>沟通影响力</label>
+                <input type="range" id="comm_influence" min="0" max="50" value="25" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_influence_display">25%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="comm_influence_bar" style="width: 25%">25%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>服务意识</label>
+                <input type="range" id="comm_service" min="0" max="50" value="20" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_service_display">20%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="comm_service_bar" style="width: 20%">20%</div>
+                </div>
+            </div>
+
+            <h3 style="color: #4a5568; margin-top: 30px;">📊 分析型岗位</h3>
+            <div class="config-item">
+                <label>数据分析能力</label>
+                <input type="range" id="anal_dataAnalysis" min="0" max="50" value="30" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_dataAnalysis_display">30%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="anal_dataAnalysis_bar" style="width: 30%">30%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>逻辑思维</label>
+                <input type="range" id="anal_logic" min="0" max="50" value="25" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_logic_display">25%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="anal_logic_bar" style="width: 25%">25%</div>
+                </div>
+            </div>
+
+            <h3 style="color: #4a5568; margin-top: 30px;">🎨 创意型岗位</h3>
+            <div class="config-item">
+                <label>创新思维</label>
+                <input type="range" id="crea_innovation" min="0" max="50" value="25" oninput="updateWeightDisplay('crea')">
+                <span class="value-display" id="crea_innovation_display">25%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="crea_innovation_bar" style="width: 25%">25%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>内容策划</label>
+                <input type="range" id="crea_content" min="0" max="50" value="25" oninput="updateWeightDisplay('crea')">
+                <span class="value-display" id="crea_content_display">25%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="crea_content_bar" style="width: 25%">25%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 腾讯文化价值观 -->
+        <div class="config-section">
+            <h2>🏢 腾讯文化价值观评估</h2>
+            
+            <div class="config-item">
+                <label>启用文化契合度评估</label>
+                <select id="valuesEnabled" onchange="updateConfig()">
+                    <option value="true" selected>启用</option>
+                    <option value="false">禁用</option>
+                </select>
+            </div>
+
+            <div class="config-item">
+                <label>文化契合度权重（在总分中占比）</label>
+                <input type="range" id="valuesWeight" min="0" max="20" value="10" oninput="updateValueDisplay()">
+                <span class="value-display" id="valuesWeightDisplay">10%</span>
+            </div>
+
+            <div class="example-box">
+                <h4>腾讯文化价值观四大维度</h4>
+                <div class="keyword-tags">
+                    <span class="tag">正直 - 诚信、透明、负责任</span>
+                    <span class="tag">进取 - 自驱、学习、结果导向</span>
+                    <span class="tag">合作 - 团队、开放、利他</span>
+                    <span class="tag">创新 - 突破、变化、试错</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关键词加分项 -->
+        <div class="config-section">
+            <h2>🔑 关键词加分配置</h2>
+            
+            <div class="example-box">
+                <h4>Tier 1 - 顶级加分（每个+5分，最多+15分）</h4>
+                <div class="keyword-tags">
+                    <span class="tag tier1">腾讯</span>
+                    <span class="tag tier1">阿里</span>
+                    <span class="tag tier1">字节</span>
+                    <span class="tag tier1">国赛一等奖</span>
+                    <span class="tag tier1">万+粉丝</span>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Tier 2 - 一般加分（每个+3分，最多+9分）</h4>
+                <div class="keyword-tags">
+                    <span class="tag tier2">HR实习</span>
+                    <span class="tag tier2">数据分析实习</span>
+                    <span class="tag tier2">Python</span>
+                    <span class="tag tier2">学生会主席</span>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Tier 3 - 小加分（每个+1分，最多+3分）</h4>
+                <div class="keyword-tags">
+                    <span class="tag tier3">Excel</span>
+                    <span class="tag tier3">志愿者</span>
+                    <span class="tag tier3">GPA 3.5+</span>
+                    <span class="tag tier3">奖学金</span>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px; color: #718096;">
+                💡 提示：你可以在 <code>hr-evaluation-config.js</code> 文件中添加更多自定义关键词
+            </p>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="btn" onclick="saveConfig()">💾 保存配置</button>
+            <button class="btn btn-secondary" onclick="resetConfig()">🔄 恢复默认</button>
+            <button class="btn btn-secondary" onclick="testConfig()">🧪 测试配置</button>
+        </div>
+
+        <div class="example-box" style="margin-top: 30px;">
+            <h4>📖 使用说明</h4>
+            <ol style="line-height: 1.8; color: #4a5568;">
+                <li>调整上方的配置参数，实时预览效果</li>
+                <li>点击「保存配置」后，AI会按新标准评估简历</li>
+                <li>点击「测试配置」可以用示例简历验证效果</li>
+                <li>如果不满意，点击「恢复默认」重置所有设置</li>
+                <li>更高级的配置可以直接编辑 <code>hr-evaluation-config.js</code> 文件</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function updateScoreDisplay() {
+            ['excellent', 'good', 'acceptable', 'needImprove'].forEach(type => {
+                const value = document.getElementById(type + 'Score').value;
+                document.getElementById(type + 'Display').textContent = value;
+            });
+        }
+
+        function updateValueDisplay() {
+            const value = document.getElementById('valuesWeight').value;
+            document.getElementById('valuesWeightDisplay').textContent = value + '%';
+        }
+
+        function updateWeightDisplay(category) {
+            // 更新显示
+            const elements = document.querySelectorAll(`[id^="${category}_"]`);
+            elements.forEach(el => {
+                if (el.tagName === 'INPUT' && el.type === 'range') {
+                    const name = el.id;
+                    const value = el.value;
+                    document.getElementById(name + '_display').textContent = value + '%';
+                    const bar = document.getElementById(name + '_bar');
+                    if (bar) {
+                        bar.style.width = value + '%';
+                        bar.textContent = value + '%';
+                    }
+                }
+            });
+        }
+
+        function updateConfig() {
+            const strictness = document.getElementById('strictness').value;
+            
+            // 根据严格度自动调整分数线
+            if (strictness === 'strict') {
+                document.getElementById('excellentScore').value = 95;
+                document.getElementById('goodScore').value = 85;
+                document.getElementById('acceptableScore').value = 75;
+                document.getElementById('needImproveScore').value = 65;
+            } else if (strictness === 'lenient') {
+                document.getElementById('excellentScore').value = 85;
+                document.getElementById('goodScore').value = 75;
+                document.getElementById('acceptableScore').value = 65;
+                document.getElementById('needImproveScore').value = 55;
+            } else {
+                document.getElementById('excellentScore').value = 90;
+                document.getElementById('goodScore').value = 80;
+                document.getElementById('acceptableScore').value = 70;
+                document.getElementById('needImproveScore').value = 60;
+            }
+            
+            updateScoreDisplay();
+        }
+
+        function saveConfig() {
+            const config = {
+                scoring: {
+                    strictness: document.getElementById('strictness').value,
+                    excellent: parseInt(document.getElementById('excellentScore').value),
+                    good: parseInt(document.getElementById('goodScore').value),
+                    acceptable: parseInt(document.getElementById('acceptableScore').value),
+                    needImprove: parseInt(document.getElementById('needImproveScore').value)
+                },
+                valuesEnabled: document.getElementById('valuesEnabled').value === 'true',
+                valuesWeight: parseInt(document.getElementById('valuesWeight').value)
+            };
+
+            // 保存到 localStorage
+            localStorage.setItem('hrEvaluationConfig', JSON.stringify(config));
+
+            // 显示成功消息
+            const msg = document.getElementById('statusMessage');
+            msg.className = 'status-message success';
+            msg.textContent = '✅ 配置已保存！下次分析简历时将使用新的评估标准';
+            
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+
+        function resetConfig() {
+            if (confirm('确定要恢复默认配置吗？')) {
+                localStorage.removeItem('hrEvaluationConfig');
+                location.reload();
+            }
+        }
+
+        function testConfig() {
+            alert('测试功能：请打开 test-zhipu-api.html 页面，上传示例简历测试新的评估标准');
+            window.open('test-zhipu-api.html', '_blank');
+        }
+
+        // 页面加载时恢复配置
+        window.onload = function() {
+            const saved = localStorage.getItem('hrEvaluationConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                document.getElementById('strictness').value = config.scoring.strictness;
+                document.getElementById('excellentScore').value = config.scoring.excellent;
+                document.getElementById('goodScore').value = config.scoring.good;
+                document.getElementById('acceptableScore').value = config.scoring.acceptable;
+                document.getElementById('needImproveScore').value = config.scoring.needImprove;
+                document.getElementById('valuesEnabled').value = config.valuesEnabled.toString();
+                document.getElementById('valuesWeight').value = config.valuesWeight;
+                
+                updateScoreDisplay();
+                updateValueDisplay();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>能力诊断器 - 认识自我</title>
     <link rel="stylesheet" href="style.css">
+    <!-- PDF.js库用于读取PDF文件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- AI API 配置 -->
+    <script src="claude-api-config.js"></script>
+    <script src="zhipu-api-config.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -375,7 +380,7 @@
         <div class="nav-container">
             <div class="nav-logo">腾讯HR·职业成长伙伴</div>
             <ul class="nav-menu">
-                <li><a href="index-new.html" class="nav-link">首页</a></li>
+                <li><a href="index.html" class="nav-link">首页</a></li>
                 <li><a href="cognition.html" class="nav-link">认知腾讯HR</a></li>
                 <li><a href="diagnosis.html" class="nav-link active">能力诊断</a></li>
                 <li><a href="application.html" class="nav-link">差异化申请</a></li>
@@ -606,19 +611,272 @@
             // 显示加载状态
             document.getElementById('loadingSection').classList.add('show');
             
-            // 模拟AI分析（实际应该调用后端API）
-            setTimeout(() => {
-                analyzResume(file);
-            }, 2000);
+            // 根据文件类型读取内容
+            if (file.type === 'text/plain') {
+                // TXT文件直接读取
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const resumeText = e.target.result;
+                    await analyzeResumeWithAI(resumeText, file.name);
+                };
+                reader.readAsText(file);
+            } else if (file.type === 'application/pdf') {
+                // PDF文件使用PDF.js读取
+                extractPDFText(file);
+            } else {
+                // Word等其他格式，提取文件名信息
+                analyzeResumeWithAI('简历文件：' + file.name, file.name);
+            }
         }
 
-        function analyzeResume(file) {
+        async function extractPDFText(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({data: arrayBuffer});
+                const pdf = await loadingTask.promise;
+                
+                let fullText = '';
+                
+                // 读取所有页面
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n';
+                }
+                
+                await analyzeResumeWithAI(fullText, file.name);
+            } catch (error) {
+                console.error('PDF读取失败:', error);
+                // 降级处理
+                await analyzeResumeWithAI('PDF简历：' + file.name, file.name);
+            }
+        }
+
+        async function analyzeResumeWithAI(resumeText, fileName) {
+            try {
+                // 优先级1: 智谱AI（国内服务，推荐）
+                if (typeof ZHIPU_CONFIG !== 'undefined' && 
+                    ZHIPU_CONFIG.apiKey && 
+                    ZHIPU_CONFIG.apiKey !== 'your-zhipu-api-key-here') {
+                    
+                    console.log('✅ 使用智谱AI进行真实AI分析...');
+                    
+                    try {
+                        const result = await analyzeWithZhipuRetry(resumeText, fileName);
+                        displayResult(result);
+                        return;
+                    } catch (zhipuError) {
+                        console.error('智谱AI失败，尝试其他方案:', zhipuError);
+                        // 继续尝试其他方案
+                    }
+                }
+                
+                // 优先级2: Claude API（如果配置了API Key）
+                if (typeof CLAUDE_CONFIG !== 'undefined' && 
+                    CLAUDE_CONFIG.apiKey && 
+                    CLAUDE_CONFIG.apiKey !== 'sk-ant-api03-your-api-key-here') {
+                    
+                    console.log('使用 Claude API 进行真实AI分析...');
+                    
+                    try {
+                        const result = await analyzeWithClaudeRetry(resumeText, fileName);
+                        displayResult(result);
+                        return;
+                    } catch (claudeError) {
+                        console.error('Claude API 失败，降级到智能分析:', claudeError);
+                        // 继续执行降级逻辑
+                    }
+                }
+                
+                // 降级方案：使用智能关键词分析
+                console.log('使用智能关键词分析...');
+                generateSmartMockResult(resumeText, fileName);
+                
+            } catch (error) {
+                console.error('分析错误:', error);
+                alert('分析过程出现错误，请重试');
+                document.getElementById('loadingSection').classList.remove('show');
+            }
+        }
+
+        function generateSmartMockResult(resumeText, fileName) {
+            // 基于简历内容进行智能分析
+            const text = (resumeText + ' ' + fileName).toLowerCase();
+            
+            // 关键词分析
+            const keywords = {
+                data: ['数据', '分析', 'excel', 'sql', 'python', 'tableau', '统计', '报表', 'data'],
+                communication: ['活动', '组织', '社团', '志愿', '主席', '部长', '策划', '协调', '沟通', 'leader'],
+                creative: ['设计', '创意', '新媒体', '文案', '视频', '运营', '品牌', '营销', 'creative']
+            };
+            
+            // 计算各维度得分
+            let scores = {
+                data: 0,
+                communication: 0,
+                creative: 0
+            };
+            
+            for (let key in keywords) {
+                keywords[key].forEach(word => {
+                    if (text.includes(word)) {
+                        scores[key] += 1;
+                    }
+                });
+            }
+            
+            // 确定岗位类型
+            let type = '沟通型';
+            let maxScore = scores.communication;
+            let baseScore = 75;
+            
+            if (scores.data > maxScore) {
+                type = '分析型';
+                maxScore = scores.data;
+                baseScore = 82;
+            } else if (scores.creative > scores.communication && scores.creative > scores.data) {
+                type = '创意型';
+                maxScore = scores.creative;
+                baseScore = 78;
+            } else if (scores.communication > 0) {
+                baseScore = 85;
+            }
+            
+            // 根据关键词数量调整分数
+            const finalScore = Math.min(95, baseScore + maxScore * 2);
+            
+            // 生成具体的分析结果
+            const result = {
+                score: finalScore,
+                type: type,
+                strengths: generateStrengths(type, text),
+                improvements: generateImprovements(type, scores),
+                suggestions: generateSuggestions(type)
+            };
+            
+            displayResult(result);
+        }
+
+        function generateStrengths(type, text) {
+            const baseStrengths = {
+                '沟通型': [
+                    '具备丰富的团队协作和活动组织经验',
+                    '展现出良好的沟通协调能力',
+                    '有领导力和团队管理经验',
+                    '服务意识强，具备同理心'
+                ],
+                '分析型': [
+                    '具备扎实的数据分析能力',
+                    '逻辑思维清晰，善于发现问题',
+                    '熟练掌握分析工具和方法',
+                    '有数据驱动决策的意识'
+                ],
+                '创意型': [
+                    '创意思维活跃，想法新颖',
+                    '有丰富的内容创作经验',
+                    '擅长品牌传播和运营',
+                    '对新媒体和趋势敏感'
+                ]
+            };
+            
+            let strengths = baseStrengths[type] || baseStrengths['沟通型'];
+            
+            // 添加简历结构相关的优势
+            if (text.length > 100) {
+                strengths[0] = '简历内容丰富，充分展示了' + (type === '分析型' ? '数据分析' : type === '创意型' ? '创意策划' : '团队协作') + '能力';
+            }
+            
+            return strengths;
+        }
+
+        function generateImprovements(type, scores) {
+            const improvements = [];
+            
+            if (type !== '分析型' && scores.data < 2) {
+                improvements.push('建议补充数据分析相关经验，学习Excel或Python');
+            }
+            
+            if (type !== '沟通型' && scores.communication < 2) {
+                improvements.push('建议增加团队协作和活动组织经历');
+            }
+            
+            if (type !== '创意型' && scores.creative < 2) {
+                improvements.push('可以尝试参与创意类项目，培养创新思维');
+            }
+            
+            improvements.push('建议系统学习HR专业知识，了解行业趋势');
+            
+            // 确保至少有4条建议
+            while (improvements.length < 4) {
+                const general = [
+                    '简历中可以量化更多成果数据（如：提升XX%，完成XX人等）',
+                    '建议参加更多商业实践项目，增加实战经验',
+                    '可以增加HR相关的实习或志愿者经历',
+                    '建议学习HRBP、OD等HR专业领域知识'
+                ];
+                improvements.push(general[improvements.length]);
+            }
+            
+            return improvements.slice(0, 4);
+        }
+
+        function generateSuggestions(type) {
+            const baseSuggestions = [
+                '参加腾讯HR案例挑战，深度了解真实业务场景',
+                '关注"腾讯HR招聘"和"腾讯学堂"公众号，了解行业动态'
+            ];
+            
+            if (type === '分析型') {
+                baseSuggestions.push('深化数据分析能力，学习Python、SQL、数据可视化');
+                baseSuggestions.push('阅读推荐：《数据驱动的人力资源管理》《精益数据分析》');
+            } else if (type === '创意型') {
+                baseSuggestions.push('提升新媒体运营能力，学习内容创作和品牌传播');
+                baseSuggestions.push('阅读推荐：《影响力》《定位》《创意的生成》');
+            } else {
+                baseSuggestions.push('学习Excel数据分析和可视化，补充分析能力');
+                baseSuggestions.push('阅读推荐：《人才招聘与选拔》《组织行为学》');
+            }
+            
+            baseSuggestions.push('考虑参加SHRM、HRBP等HR专业认证课程');
+            
+            return baseSuggestions;
+        }
+
+        function displayResult(result) {
             // 隐藏加载，显示结果
             document.getElementById('loadingSection').classList.remove('show');
             document.getElementById('resultSection').classList.add('show');
 
-            // 模拟诊断结果（实际应该从后端获取）
-            const mockResult = {
+            // 渲染结果
+            document.getElementById('overallScore').textContent = result.score;
+            document.getElementById('analysisBasis').textContent = result.type;
+
+            // 渲染优势
+            const strengthsHTML = result.strengths.map(item => 
+                `<div class="strength-item">${item}</div>`
+            ).join('');
+            document.getElementById('strengthsList').innerHTML = strengthsHTML;
+
+            // 渲染需提升
+            const improvementsHTML = result.improvements.map(item => 
+                `<div class="improve-item">${item}</div>`
+            ).join('');
+            document.getElementById('improveList').innerHTML = improvementsHTML;
+
+            // 渲染建议
+            const suggestionsHTML = result.suggestions.map(item => 
+                `<li>${item}</li>`
+            ).join('');
+            document.getElementById('suggestionsList').innerHTML = suggestionsHTML;
+
+            // 滚动到结果
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function analyzeResume(file) {
+            // 这个函数保留作为备用
+            displayResult({
                 score: 85,
                 type: '沟通型',
                 strengths: [
@@ -640,32 +898,7 @@
                     '关注"腾讯HR招聘"公众号，了解行业动态',
                     '参加SHRM/ATD等HR专业认证课程'
                 ]
-            };
-
-            // 渲染结果
-            document.getElementById('overallScore').textContent = mockResult.score;
-            document.getElementById('analysisBasis').textContent = mockResult.type;
-
-            // 渲染优势
-            const strengthsHTML = mockResult.strengths.map(item => 
-                `<div class="strength-item">${item}</div>`
-            ).join('');
-            document.getElementById('strengthsList').innerHTML = strengthsHTML;
-
-            // 渲染需提升
-            const improvementsHTML = mockResult.improvements.map(item => 
-                `<div class="improve-item">${item}</div>`
-            ).join('');
-            document.getElementById('improveList').innerHTML = improvementsHTML;
-
-            // 渲染建议
-            const suggestionsHTML = mockResult.suggestions.map(item => 
-                `<li>${item}</li>`
-            ).join('');
-            document.getElementById('suggestionsList').innerHTML = suggestionsHTML;
-
-            // 滚动到结果
-            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         }
     </script>
 </body>
