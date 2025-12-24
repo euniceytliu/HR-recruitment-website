@@ -1,0 +1,11 @@
+{
+  "name": "tencent-hr-website",
+  "version": "1.0.0",
+  "description": "腾讯HR职业成长伙伴网站",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -6,6 +6,20 @@
 zhipu-api-config.js
 claude-api-config.js
 
+# Vercel
+.vercel
+.env
+.env*.local
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
 # 临时文件
 *.sh
 推送指南.md

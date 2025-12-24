@@ -655,7 +655,20 @@
 
         async function analyzeResumeWithAI(resumeText, fileName) {
             try {
-                // 优先级1: 智谱AI（国内服务，推荐）
+                // 优先级1: 后端API（线上部署推荐，API Key安全）
+                try {
+                    console.log('🚀 尝试调用后端API分析...');
+                    const result = await analyzeWithBackendAPI(resumeText, fileName);
+                    if (result) {
+                        displayResult(result);
+                        return;
+                    }
+                } catch (backendError) {
+                    console.warn('⚠️ 后端API不可用，尝试其他方案:', backendError.message);
+                    // 继续尝试其他方案
+                }
+                
+                // 优先级2: 智谱AI（本地开发，需要配置API Key）
                 if (typeof ZHIPU_CONFIG !== 'undefined' && 
                     ZHIPU_CONFIG.apiKey && 
                     ZHIPU_CONFIG.apiKey !== 'your-zhipu-api-key-here') {
@@ -672,7 +685,7 @@
                     }
                 }
                 
-                // 优先级2: Claude API（如果配置了API Key）
+                // 优先级3: Claude API（如果配置了API Key）
                 if (typeof CLAUDE_CONFIG !== 'undefined' && 
                     CLAUDE_CONFIG.apiKey && 
                     CLAUDE_CONFIG.apiKey !== 'sk-ant-api03-your-api-key-here') {
@@ -697,6 +710,45 @@
                 console.error('分析错误:', error);
                 alert('分析过程出现错误，请重试');
                 document.getElementById('loadingSection').classList.remove('show');
+            }
+        }
+
+        // 后端API分析函数（推荐用于线上部署）
+        async function analyzeWithBackendAPI(resumeText, fileName) {
+            try {
+                // 根据环境自动选择API地址
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3000'  // 本地开发
+                    : '';  // 生产环境（使用相对路径）
+                
+                const response = await fetch(`${API_BASE}/api/analyze-resume`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        resumeText,
+                        fileName
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `后端API错误: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || '后端API返回失败');
+                }
+
+                console.log('✅ 后端API分析成功！');
+                return data.data;
+
+            } catch (error) {
+                console.error('❌ 后端API调用失败:', error);
+                throw error;
             }
         }
 
