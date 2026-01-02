@@ -483,86 +483,136 @@
             <!-- 案例1 -->
             <div class="case-card">
                 <div class="case-header">
-                    <div class="case-title">🤖 案例一：用AI重构校招人才获取方案</div>
+                    <div class="case-title">🤖 案例一：搭建AI驱动的智能简历筛选工具</div>
                     <span class="case-difficulty difficulty-medium">中等难度</span>
                 </div>
                 <div class="case-description">
                     <strong>背景：</strong>腾讯某事业群校招面临挑战：简历量大（5000+）但HR人手有限，优质候选人识别效率低，JD与简历匹配准确率不足，导致面试转化率仅18%。团队希望引入AI提升招聘效率和精准度。
                     <br><br>
-                    <strong>任务：</strong>
+                    <strong>🎯 必须交付的实用产品：</strong>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>构建一个可运行的"AI简历筛选工具"（最小化产品）</strong>
+                        <ul style="margin: 8px 0; padding-left: 25px;">
+                            <li><strong>核心功能：</strong>上传简历（PDF/Word）→ AI自动评分（0-100分）→ 输出匹配度报告（优势/不足/面试建议）</li>
+                            <li><strong>技术要求：</strong>可使用任何AI工具（ChatGPT、Claude、文心一言等），需提供完整提示词</li>
+                            <li><strong>可交付形式：</strong>①网页工具（HTML+JS）或 ②Google Colab/Jupyter笔记本 或 ③可运行的Python脚本</li>
+                            <li><strong>测试要求：</strong>至少用3份真实简历测试，展示筛选结果</li>
+                        </ul>
+                    </div>
+                    <br>
+                    <strong>📋 产品开发任务（完整流程）：</strong>
                     <ol style="margin: 10px 0; padding-left: 25px;">
-                        <li><strong>问题定义能力：</strong>将"校招效率低"拆解为3-5个可量化的具体问题（如：简历筛选耗时、JD匹配度、候选人画像不清晰等）</li>
-                        <li><strong>任务拆解能力：</strong>设计AI优化方案的实施路径（分阶段、分模块，明确每个阶段的目标和产出）</li>
-                        <li><strong>AI对话能力：</strong>撰写3个关键场景的AI提示词（如：智能简历解析、候选人匹配度评分、面试问题生成），并说明你如何迭代优化提示词</li>
-                        <li><strong>方案判断能力：</strong>假设AI给出了2个候选人推荐方案，你如何评估方案质量？设计评估标准（至少包含准确性、可解释性、实用性3个维度）</li>
-                        <li><strong>落地方案：</strong>提出完整的AI+人工协同工作流，明确哪些环节由AI处理、哪些需要HR介入</li>
+                        <li><strong>问题定义：</strong>明确你的工具要解决什么问题？输入是什么（简历格式、岗位JD）？输出是什么（评分标准、报告格式）？</li>
+                        <li><strong>任务拆解：</strong>将产品开发拆解为4-6个可执行步骤（如：简历解析 → 关键信息提取 → AI评分 → 报告生成），每步明确输入/输出</li>
+                        <li><strong>AI提示词设计：</strong>撰写核心提示词（至少包含：简历解析、匹配度评分、面试建议生成），并展示你如何通过多轮测试优化提示词</li>
+                        <li><strong>产品搭建：</strong>动手构建最小化产品，确保功能可用（上传简历 → 得到评分报告）</li>
+                        <li><strong>测试与优化：</strong>用至少3份真实简历测试，记录问题并优化（如：AI评分偏高/偏低、报告不够具体等）</li>
+                        <li><strong>方案验证：</strong>设计评估标准（准确性、实用性、效率提升），说明如何验证工具是否真正解决了问题</li>
                     </ol>
                 </div>
                 <div class="case-meta">
-                    <span>⏰ 建议用时：3-4小时</span>
-                    <span>🎯 考察能力：问题定义、任务拆解、AI协同、方案判断、学习能力</span>
+                    <span>⏰ 建议用时：6-8小时</span>
+                    <span>🎯 考察能力：产品思维、AI协同、动手能力、全流程交付</span>
                 </div>
-                <a href="#submit" class="case-btn" onclick="selectCase('案例一：用AI重构校招人才获取方案')">选择此案例 →</a>
+                <a href="#submit" class="case-btn" onclick="selectCase('案例一：搭建AI驱动的智能简历筛选工具')">选择此案例 →</a>
             </div>
 
             <!-- 案例2 -->
             <div class="case-card">
                 <div class="case-header">
-                    <div class="case-title">💡 案例二：AI驱动的员工能力发展体系设计</div>
+                    <div class="case-title">💡 案例二：开发AI个性化能力诊断与发展助手</div>
                     <span class="case-difficulty difficulty-hard">高难度</span>
                 </div>
                 <div class="case-description">
                     <strong>背景：</strong>腾讯HR发现员工成长路径不清晰，能力评估主观性强，培训资源匹配不精准。管理者反馈：不知道如何针对性培养团队成员。公司希望构建AI驱动的个性化能力发展体系。
                     <br><br>
-                    <strong>任务：</strong>
+                    <strong>🎯 必须交付的实用产品：</strong>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>构建一个可运行的"AI能力诊断与发展助手"（最小化产品）</strong>
+                        <ul style="margin: 8px 0; padding-left: 25px;">
+                            <li><strong>核心功能：</strong>用户输入岗位和当前能力情况 → AI诊断能力短板 → 推荐个性化成长路径（3-6个月计划）→ 匹配学习资源</li>
+                            <li><strong>技术要求：</strong>可使用任何AI工具，需设计多轮对话流程（至少3轮），让AI逐步深入了解用户情况</li>
+                            <li><strong>可交付形式：</strong>①对话式网页工具 或 ②ChatGPT/Claude自定义GPT 或 ③可运行的聊天机器人脚本</li>
+                            <li><strong>测试要求：</strong>至少用3个不同岗位场景测试（如：产品经理、数据分析师、技术支持），展示完整对话和推荐结果</li>
+                        </ul>
+                    </div>
+                    <br>
+                    <strong>📋 产品开发任务（完整流程）：</strong>
                     <ol style="margin: 10px 0; padding-left: 25px;">
-                        <li><strong>问题定义能力：</strong>将"员工发展不清晰"拆解为可被AI解决的子问题（如：能力画像、成长路径推荐、学习资源匹配等），并明确每个子问题的输入/输出</li>
-                        <li><strong>逻辑思考能力：</strong>设计AI能力评估模型的逻辑框架（需考虑：数据来源、评估维度、权重设计、动态更新机制）</li>
-                        <li><strong>任务拆解能力：</strong>绘制AI能力发展系统的流程图，标注人工决策点和AI自动化点，说明为什么这样设计</li>
-                        <li><strong>AI对话能力：</strong>设计2个核心场景的AI交互流程：①员工询问"我该如何提升数据分析能力？"AI如何给出个性化建议？②管理者询问"如何培养团队成员的产品思维？"AI如何辅助决策？（需提供完整的多轮对话示例）</li>
-                        <li><strong>方案判断能力：</strong>AI推荐了3条成长路径，你如何判断推荐质量？设计验证实验（包含测试场景、评估指标、预期结果）</li>
-                        <li><strong>学习能力：</strong>假设你不了解AI能力评估技术，你会如何快速学习并给出初步方案？（列出学习路径和时间规划）</li>
+                        <li><strong>问题定义：</strong>将"员工发展不清晰"拆解为AI可解决的子问题（能力诊断、路径推荐、资源匹配），明确每个子问题的输入/输出和评判标准</li>
+                        <li><strong>逻辑框架设计：</strong>设计AI能力评估的逻辑（评估维度、诊断标准、推荐依据），画出系统流程图（用户输入 → AI处理 → 结果输出）</li>
+                        <li><strong>多轮对话设计：</strong>设计AI与用户的对话流程（至少3轮），每轮对话的目标是什么？如何引导用户提供关键信息？如何处理用户回答不清晰的情况？</li>
+                        <li><strong>提示词工程：</strong>撰写核心提示词（能力诊断、路径推荐、资源匹配），展示你如何通过测试迭代优化提示词（至少展示2次迭代过程）</li>
+                        <li><strong>产品搭建：</strong>动手构建最小化产品，确保对话流程顺畅、推荐结果个性化</li>
+                        <li><strong>测试与验证：</strong>用3个不同岗位测试，记录AI推荐的成长路径是否合理、学习资源是否匹配、是否真正有实用价值</li>
+                        <li><strong>方案优化：</strong>识别产品不足（如：推荐太泛化、资源不够具体等），说明如何改进</li>
                     </ol>
                 </div>
                 <div class="case-meta">
-                    <span>⏰ 建议用时：4-5小时</span>
-                    <span>🎯 考察能力：系统思维、逻辑思考、AI协同、学习能力、方案设计</span>
+                    <span>⏰ 建议用时：8-10小时</span>
+                    <span>🎯 考察能力：系统设计、对话设计、AI协同、产品思维、全流程交付</span>
                 </div>
-                <a href="#submit" class="case-btn" onclick="selectCase('案例二：AI驱动的员工能力发展体系设计')">选择此案例 →</a>
+                <a href="#submit" class="case-btn" onclick="selectCase('案例二：开发AI个性化能力诊断与发展助手')">选择此案例 →</a>
             </div>
 
             <!-- 案例3 -->
             <div class="case-card">
                 <div class="case-header">
-                    <div class="case-title">📊 案例三：用AI优化HR数据分析与决策支持</div>
+                    <div class="case-title">📊 案例三：构建AI驱动的HR数据洞察仪表盘</div>
                     <span class="case-difficulty difficulty-easy">入门难度</span>
                 </div>
                 <div class="case-description">
                     <strong>背景：</strong>腾讯HR每月需要输出大量数据报告（离职率、招聘效率、员工满意度等），但数据分散在多个系统，手动整理耗时且容易出错。管理层希望HR能从数据中洞察业务问题并给出决策建议，而非仅提供数字。
                     <br><br>
-                    <strong>任务：</strong>
+                    <strong>🎯 必须交付的实用产品：</strong>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>构建一个可运行的"AI数据洞察工具"（最小化产品）</strong>
+                        <ul style="margin: 8px 0; padding-left: 25px;">
+                            <li><strong>核心功能：</strong>上传HR数据（Excel/CSV）→ AI自动分析（识别异常、发现趋势）→ 生成洞察报告（关键发现+业务建议）</li>
+                            <li><strong>技术要求：</strong>可使用任何AI工具+数据处理工具（Python、Excel、Google Sheets等），需提供完整提示词和数据处理流程</li>
+                            <li><strong>可交付形式：</strong>①网页工具（可视化仪表盘）或 ②Google Colab/Jupyter笔记本 或 ③可运行的分析脚本+报告模板</li>
+                            <li><strong>测试要求：</strong>至少用2组真实/模拟HR数据测试（如：离职数据、招聘数据），展示AI生成的洞察报告</li>
+                        </ul>
+                    </div>
+                    <br>
+                    <strong>📋 产品开发任务（完整流程）：</strong>
                     <ol style="margin: 10px 0; padding-left: 25px;">
-                        <li><strong>问题定义能力：</strong>将"HR数据分析效率低"拆解为3个可被AI优化的具体场景（如：自动化报表生成、异常数据识别、趋势预测等）</li>
-                        <li><strong>任务拆解能力：</strong>选择1个场景，设计AI优化方案的实施步骤（包含：数据准备、AI工具选择、测试验证、推广应用）</li>
-                        <li><strong>AI对话能力：</strong>撰写2个AI提示词示例：①让AI从离职数据中发现异常模式并给出分析结论；②让AI根据招聘数据预测下季度人才需求。并说明如何通过多轮对话优化AI输出质量</li>
-                        <li><strong>方案判断能力：</strong>AI生成了一份离职分析报告，你如何判断报告是否可用？列出5个关键检查点（如：数据准确性、逻辑合理性、结论可操作性等）</li>
-                        <li><strong>学习能力：</strong>如果你此前没用过AI做数据分析，你会如何在1周内掌握基本技能？提供学习计划（包含学习资源、实践项目）</li>
+                        <li><strong>问题定义：</strong>选择1个具体的数据分析场景（如：离职分析、招聘效率分析），明确输入数据格式、分析目标、输出报告内容</li>
+                        <li><strong>任务拆解：</strong>将数据分析拆解为3-5个步骤（如：数据清洗 → 描述性统计 → 异常识别 → AI洞察生成 → 报告输出）</li>
+                        <li><strong>AI提示词设计：</strong>撰写2个核心提示词：①让AI从数据中发现异常模式；②让AI根据数据趋势给出业务建议。展示你如何优化提示词让AI输出更有价值</li>
+                        <li><strong>产品搭建：</strong>动手构建最小化产品，确保数据能顺利导入、AI能自动分析、报告能清晰展示</li>
+                        <li><strong>测试与验证：</strong>用2组数据测试，检查AI洞察是否准确（数据解读是否正确）、是否有用（建议是否可执行）</li>
+                        <li><strong>质量评估：</strong>设计5个检查点评估AI报告质量（如：数据准确性、逻辑合理性、结论可操作性），说明如何判断报告是否可用</li>
+                        <li><strong>快速学习：</strong>如果你此前没用过AI做数据分析，说明你如何在3天内完成这个产品（学习路径+时间分配+关键资源）</li>
                     </ol>
                 </div>
                 <div class="case-meta">
-                    <span>⏰ 建议用时：2-3小时</span>
-                    <span>🎯 考察能力：问题定义、逻辑思考、AI协同、方案判断、学习能力</span>
+                    <span>⏰ 建议用时：4-6小时</span>
+                    <span>🎯 考察能力：数据思维、AI协同、动手能力、快速学习、全流程交付</span>
                 </div>
-                <a href="#submit" class="case-btn" onclick="selectCase('案例三：用AI优化HR数据分析与决策支持')">选择此案例 →</a>
+                <a href="#submit" class="case-btn" onclick="selectCase('案例三：构建AI驱动的HR数据洞察仪表盘')">选择此案例 →</a>
             </div>
         </div>
 
         <!-- 提交表单 -->
         <div class="submit-section" id="submit">
-            <h2>📝 提交你的案例分析</h2>
-            <p style="text-align: center; color: #4a5568; margin-bottom: 30px;">
-                填写完整信息并上传你的案例分析文档
+            <h2>📝 提交你的产品与案例分析</h2>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 15px;">
+                <strong>⚠️ 重要提醒：必须提交可运行的产品，而非仅提交文档！</strong>
             </p>
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #4caf50;">
+                <h3 style="margin-top: 0; color: #2e7d32;">✅ 完整提交清单（缺一不可）</h3>
+                <ol style="margin: 10px 0; padding-left: 25px; line-height: 1.8;">
+                    <li><strong>【产品】</strong>可运行的工具/系统（网页链接、GitHub仓库、Colab笔记本、可执行脚本等）</li>
+                    <li><strong>【演示视频】</strong>3-5分钟的产品演示（展示完整使用流程和测试结果）</li>
+                    <li><strong>【核心提示词】</strong>你使用的所有AI提示词（至少2个，需展示迭代优化过程）</li>
+                    <li><strong>【测试数据与结果】</strong>至少2-3组测试数据和AI输出结果</li>
+                    <li><strong>【产品说明文档】</strong>包含：问题定义、设计思路、技术实现、测试验证、优化建议（PDF/Word，10-15页）</li>
+                </ol>
+                <p style="margin-bottom: 0; color: #558b2f; font-weight: 500;">
+                    💡 提示：产品不需要完美，但必须可运行！我们更看重你的动手能力和全流程交付能力。
+                </p>
+            </div>
 
             <div id="alertBox" class="alert"></div>
 
@@ -591,27 +641,45 @@
                     <label>选择案例 *</label>
                     <select name="case" id="caseSelect" required>
                         <option value="">请选择你要挑战的案例</option>
-                        <option value="案例一：校招转化率优化">案例一：校招转化率优化</option>
-                        <option value="案例二：Z世代雇主品牌策划">案例二：Z世代雇主品牌策划</option>
-                        <option value="案例三：新员工入职体验优化">案例三：新员工入职体验优化</option>
+                        <option value="案例一：搭建AI驱动的智能简历筛选工具">案例一：搭建AI驱动的智能简历筛选工具</option>
+                        <option value="案例二：开发AI个性化能力诊断与发展助手">案例二：开发AI个性化能力诊断与发展助手</option>
+                        <option value="案例三：构建AI驱动的HR数据洞察仪表盘">案例三：构建AI驱动的HR数据洞察仪表盘</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>你的思路简述（200-500字）*</label>
-                    <textarea name="summary" required placeholder="简要说明你的分析思路和核心观点..."></textarea>
+                    <label>产品链接（必填）*</label>
+                    <input type="url" name="productUrl" required placeholder="你的产品链接（网页、GitHub仓库、Colab笔记本等）">
+                    <small style="color: #666; display: block; margin-top: 5px;">💡 产品必须可访问、可运行！如果是私有仓库，请在说明文档中提供访问权限</small>
                 </div>
 
                 <div class="form-group">
-                    <label>上传案例分析文档 *</label>
+                    <label>演示视频链接（必填）*</label>
+                    <input type="url" name="videoUrl" required placeholder="你的产品演示视频链接（腾讯视频、B站、YouTube等）">
+                    <small style="color: #666; display: block; margin-top: 5px;">🎥 3-5分钟，展示完整使用流程和测试结果</small>
+                </div>
+
+                <div class="form-group">
+                    <label>核心提示词（必填）*</label>
+                    <textarea name="prompts" required placeholder="粘贴你使用的核心AI提示词（至少2个），并说明迭代优化过程..." rows="8"></textarea>
+                    <small style="color: #666; display: block; margin-top: 5px;">📝 展示你如何设计、测试、优化提示词</small>
+                </div>
+
+                <div class="form-group">
+                    <label>产品说明与测试结果（200-500字）*</label>
+                    <textarea name="summary" required placeholder="简要说明：1）产品核心功能 2）技术实现思路 3）测试了哪些数据/场景 4）遇到的问题和解决方案..." rows="6"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>上传完整说明文档 *</label>
                     <div class="file-upload" onclick="document.getElementById('caseFile').click()">
                         <div class="file-upload-icon">📎</div>
-                        <p id="fileName">点击上传文档（PDF/Word/PPT，最大10MB）</p>
-                        <input type="file" id="caseFile" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx" required style="display: none;" onchange="updateFileName(event)">
+                        <p id="fileName">点击上传文档（包含问题定义、设计思路、技术实现、测试验证、优化建议，PDF/Word，10-15页，最大10MB）</p>
+                        <input type="file" id="caseFile" name="file" accept=".pdf,.doc,.docx" required style="display: none;" onchange="updateFileName(event)">
                     </div>
                 </div>
 
-                <button type="submit" class="submit-btn">🚀 提交案例分析</button>
+                <button type="submit" class="submit-btn">🚀 提交产品与案例分析</button>
             </form>
 
             <p style="text-align: center; margin-top: 20px; color: #718096; font-size: 0.9em;">
