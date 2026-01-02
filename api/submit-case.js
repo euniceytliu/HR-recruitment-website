@@ -1,12 +1,6 @@
 // Vercel Serverless Function: 处理案例提交
 const { createClient } = require('@supabase/supabase-js');
 
-// 初始化 Supabase 客户端
-const supabaseUrl = process.env.SUPABASE_URL || 'https://gevvmjwjmpjhwczfuiru.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 module.exports = async function handler(req, res) {
     // 设置 CORS
     res.setHeader('Access-Control-Allow-Credentials', true);
@@ -30,6 +24,10 @@ module.exports = async function handler(req, res) {
     }
 
     try {
+        // 初始化 Supabase 客户端（放在函数内部）
+        const supabaseUrl = process.env.SUPABASE_URL || 'https://gevvmjwjmpjhwczfuiru.supabase.co';
+        const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
+        const supabase = createClient(supabaseUrl, supabaseKey);
         const {
             name,
             phone,
