@@ -1,5 +1,5 @@
 // Vercel Serverless Function: 处理案例提交
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 // 初始化 Supabase 客户端
 const supabaseUrl = process.env.SUPABASE_URL || 'https://gevvmjwjmpjhwczfuiru.supabase.co';
@@ -7,7 +7,7 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cC
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // 设置 CORS
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
