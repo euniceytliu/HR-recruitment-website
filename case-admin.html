@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案例提交管理后台 - 腾讯HR</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .filters select, .filters input {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .filters button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filters button:hover {
+            background: #5a67d8;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f7fafc;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #d68910;
+        }
+
+        .status-reviewing {
+            background: #ebf8ff;
+            color: #2c5282;
+        }
+
+        .status-approved {
+            background: #f0fff4;
+            color: #22543d;
+        }
+
+        .status-rejected {
+            background: #fff5f5;
+            color: #742a2a;
+        }
+
+        .btn-view {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-view:hover {
+            background: #5a67d8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .modal-close:hover {
+            color: #2d3748;
+        }
+
+        .detail-row {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            color: #4a5568;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📊 案例提交管理后台</h1>
+            <p style="color: #718096; margin-top: 5px;">腾讯HR职业成长伙伴 - 案例挑战数据管理</p>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>总提交数</h3>
+                <div class="number" id="totalCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>待审核</h3>
+                <div class="number" id="pendingCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>评审中</h3>
+                <div class="number" id="reviewingCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>已通过</h3>
+                <div class="number" id="approvedCount">0</div>
+            </div>
+        </div>
+
+        <!-- 筛选器 -->
+        <div class="filters">
+            <select id="statusFilter">
+                <option value="">全部状态</option>
+                <option value="pending">待审核</option>
+                <option value="reviewing">评审中</option>
+                <option value="approved">已通过</option>
+                <option value="rejected">未通过</option>
+            </select>
+            <select id="caseFilter">
+                <option value="">全部案例</option>
+                <option value="案例一：搭建AI驱动的智能简历筛选工具">案例一</option>
+                <option value="案例二：开发AI个性化能力诊断与发展助手">案例二</option>
+                <option value="案例三：构建AI驱动的HR数据洞察仪表盘">案例三</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="搜索姓名、邮箱、学校...">
+            <button onclick="loadData()">🔍 搜索</button>
+            <button onclick="exportData()">📥 导出Excel</button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <div id="loadingDiv" class="loading">
+                <p>⏳ 加载数据中...</p>
+            </div>
+            <table id="dataTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>提交时间</th>
+                        <th>姓名</th>
+                        <th>学校</th>
+                        <th>案例</th>
+                        <th>状态</th>
+                        <th>评分</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let supabase;
+        let allData = [];
+
+        // 初始化
+        window.onload = async function() {
+            supabase = initSupabase();
+            await loadData();
+        };
+
+        // 加载数据
+        async function loadData() {
+            const loadingDiv = document.getElementById('loadingDiv');
+            const dataTable = document.getElementById('dataTable');
+            
+            loadingDiv.style.display = 'block';
+            dataTable.style.display = 'none';
+
+            try {
+                let query = supabase
+                    .from('case_submissions')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                // 应用筛选
+                const statusFilter = document.getElementById('statusFilter').value;
+                const caseFilter = document.getElementById('caseFilter').value;
+                const searchText = document.getElementById('searchInput').value;
+
+                if (statusFilter) {
+                    query = query.eq('status', statusFilter);
+                }
+                if (caseFilter) {
+                    query = query.eq('case_name', caseFilter);
+                }
+                if (searchText) {
+                    query = query.or(`name.ilike.%${searchText}%,email.ilike.%${searchText}%,school.ilike.%${searchText}%`);
+                }
+
+                const { data, error } = await query;
+
+                if (error) {
+                    console.error('加载数据错误:', error);
+                    alert('加载数据失败: ' + error.message);
+                    return;
+                }
+
+                allData = data;
+                updateStats(data);
+                renderTable(data);
+
+                loadingDiv.style.display = 'none';
+                dataTable.style.display = 'table';
+
+            } catch (error) {
+                console.error('加载数据错误:', error);
+                alert('加载数据失败: ' + error.message);
+            }
+        }
+
+        // 更新统计数据
+        function updateStats(data) {
+            document.getElementById('totalCount').textContent = data.length;
+            document.getElementById('pendingCount').textContent = data.filter(d => d.status === 'pending').length;
+            document.getElementById('reviewingCount').textContent = data.filter(d => d.status === 'reviewing').length;
+            document.getElementById('approvedCount').textContent = data.filter(d => d.status === 'approved').length;
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#718096;">暂无数据</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${new Date(item.created_at).toLocaleString('zh-CN')}</td>
+                    <td>${item.name}</td>
+                    <td>${item.school}</td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.case_name}">${item.case_name}</td>
+                    <td><span class="status-badge status-${item.status}">${getStatusText(item.status)}</span></td>
+                    <td>${item.score || '-'}</td>
+                    <td><button class="btn-view" onclick="viewDetail(${item.id})">查看详情</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 查看详情
+        function viewDetail(id) {
+            const item = allData.find(d => d.id === id);
+            if (!item) return;
+
+            const content = `
+                <h2 style="margin-bottom: 20px; color: #2d3748;">案例提交详情 #${item.id}</h2>
+                
+                <div class="detail-row">
+                    <div class="detail-label">📝 基本信息</div>
+                    <div class="detail-value">
+                        <strong>姓名：</strong>${item.name}<br>
+                        <strong>联系方式：</strong>${item.phone}<br>
+                        <strong>邮箱：</strong>${item.email}<br>
+                        <strong>学校及专业：</strong>${item.school}<br>
+                        <strong>提交时间：</strong>${new Date(item.created_at).toLocaleString('zh-CN')}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">🎯 案例信息</div>
+                    <div class="detail-value">
+                        <strong>选择的案例：</strong>${item.case_name}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">🔗 产品与演示</div>
+                    <div class="detail-value">
+                        <strong>产品链接：</strong><a href="${item.product_url}" target="_blank" class="link">${item.product_url}</a><br>
+                        <strong>演示视频：</strong><a href="${item.video_url}" target="_blank" class="link">${item.video_url}</a>
+                        ${item.document_url ? `<br><strong>说明文档：</strong>${item.document_name || '已上传'}` : ''}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">💡 核心AI提示词</div>
+                    <div class="detail-value">${item.prompts}</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">📊 产品说明与测试结果</div>
+                    <div class="detail-value">${item.summary}</div>
+                </div>
+
+                ${item.feedback ? `
+                <div class="detail-row">
+                    <div class="detail-label">✍️ 评审反馈</div>
+                    <div class="detail-value">
+                        <strong>状态：</strong><span class="status-badge status-${item.status}">${getStatusText(item.status)}</span><br>
+                        <strong>评分：</strong>${item.score || '-'}<br>
+                        <strong>反馈：</strong>${item.feedback}<br>
+                        <strong>评审人：</strong>${item.reviewer || '-'}<br>
+                        <strong>评审时间：</strong>${item.reviewed_at ? new Date(item.reviewed_at).toLocaleString('zh-CN') : '-'}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('detailContent').innerHTML = content;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '待审核',
+                'reviewing': '评审中',
+                'approved': '已通过',
+                'rejected': '未通过'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 导出Excel
+        function exportData() {
+            if (allData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            // 转换为CSV格式
+            const headers = ['提交时间', '姓名', '联系方式', '邮箱', '学校专业', '案例', '产品链接', '视频链接', '状态', '评分'];
+            const rows = allData.map(item => [
+                new Date(item.created_at).toLocaleString('zh-CN'),
+                item.name,
+                item.phone,
+                item.email,
+                item.school,
+                item.case_name,
+                item.product_url,
+                item.video_url,
+                getStatusText(item.status),
+                item.score || ''
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            // 下载
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `案例提交数据_${new Date().toLocaleDateString()}.csv`;
+            link.click();
+        }
+
+        // 点击外部关闭弹窗
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>
