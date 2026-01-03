@@ -237,53 +237,138 @@
             <h2>⚖️ 岗位类型能力权重配置</h2>
             
             <h3 style="color: #4a5568; margin-top: 20px;">💬 沟通型岗位</h3>
+            <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
+                ⚠️ 请确保所有能力权重相加 = 100%
+            </p>
+            
             <div class="config-item">
                 <label>人际敏感度</label>
-                <input type="range" id="comm_interpersonal" min="0" max="50" value="25" oninput="updateWeightDisplay('comm')">
-                <span class="value-display" id="comm_interpersonal_display">25%</span>
+                <input type="range" id="comm_interpersonal" min="0" max="50" value="20" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_interpersonal_display">20%</span>
                 <div class="weight-bar">
-                    <div class="weight-fill" id="comm_interpersonal_bar" style="width: 25%">25%</div>
+                    <div class="weight-fill" id="comm_interpersonal_bar" style="width: 20%">20%</div>
                 </div>
             </div>
 
             <div class="config-item">
-                <label>沟通影响力</label>
-                <input type="range" id="comm_influence" min="0" max="50" value="25" oninput="updateWeightDisplay('comm')">
-                <span class="value-display" id="comm_influence_display">25%</span>
+                <label>沟通表达能力</label>
+                <input type="range" id="comm_communication" min="0" max="50" value="20" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_communication_display">20%</span>
                 <div class="weight-bar">
-                    <div class="weight-fill" id="comm_influence_bar" style="width: 25%">25%</div>
+                    <div class="weight-fill" id="comm_communication_bar" style="width: 20%">20%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>协调整合能力</label>
+                <input type="range" id="comm_coordination" min="0" max="50" value="15" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_coordination_display">15%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="comm_coordination_bar" style="width: 15%">15%</div>
                 </div>
             </div>
 
             <div class="config-item">
                 <label>服务意识</label>
-                <input type="range" id="comm_service" min="0" max="50" value="20" oninput="updateWeightDisplay('comm')">
-                <span class="value-display" id="comm_service_display">20%</span>
+                <input type="range" id="comm_service" min="0" max="50" value="15" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_service_display">15%</span>
                 <div class="weight-bar">
-                    <div class="weight-fill" id="comm_service_bar" style="width: 20%">20%</div>
+                    <div class="weight-fill" id="comm_service_bar" style="width: 15%">15%</div>
                 </div>
             </div>
 
+            <div class="config-item">
+                <label>情绪管理</label>
+                <input type="range" id="comm_emotion" min="0" max="50" value="15" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_emotion_display">15%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="comm_emotion_bar" style="width: 15%">15%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>影响力</label>
+                <input type="range" id="comm_influence" min="0" max="50" value="15" oninput="updateWeightDisplay('comm')">
+                <span class="value-display" id="comm_influence_display">15%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="comm_influence_bar" style="width: 15%">15%</div>
+                </div>
+            </div>
+            
+            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                <strong style="color: #0284c7;">当前总计：</strong>
+                <span id="comm_total" style="font-weight: bold; color: #0284c7;">100%</span>
+            </div>
+
             <h3 style="color: #4a5568; margin-top: 30px;">📊 分析型岗位</h3>
+            <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
+                ⚠️ 请确保所有能力权重相加 = 100%
+            </p>
+            
             <div class="config-item">
                 <label>数据分析能力</label>
-                <input type="range" id="anal_dataAnalysis" min="0" max="50" value="30" oninput="updateWeightDisplay('anal')">
-                <span class="value-display" id="anal_dataAnalysis_display">30%</span>
+                <input type="range" id="anal_dataAnalysis" min="0" max="50" value="25" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_dataAnalysis_display">25%</span>
                 <div class="weight-bar">
-                    <div class="weight-fill" id="anal_dataAnalysis_bar" style="width: 30%">30%</div>
+                    <div class="weight-fill" id="anal_dataAnalysis_bar" style="width: 25%">25%</div>
                 </div>
             </div>
 
             <div class="config-item">
                 <label>逻辑思维</label>
-                <input type="range" id="anal_logic" min="0" max="50" value="25" oninput="updateWeightDisplay('anal')">
-                <span class="value-display" id="anal_logic_display">25%</span>
+                <input type="range" id="anal_logic" min="0" max="50" value="20" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_logic_display">20%</span>
                 <div class="weight-bar">
-                    <div class="weight-fill" id="anal_logic_bar" style="width: 25%">25%</div>
+                    <div class="weight-fill" id="anal_logic_bar" style="width: 20%">20%</div>
                 </div>
             </div>
 
+            <div class="config-item">
+                <label>问题诊断</label>
+                <input type="range" id="anal_diagnosis" min="0" max="50" value="15" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_diagnosis_display">15%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="anal_diagnosis_bar" style="width: 15%">15%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>业务理解</label>
+                <input type="range" id="anal_business" min="0" max="50" value="15" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_business_display">15%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="anal_business_bar" style="width: 15%">15%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>流程优化</label>
+                <input type="range" id="anal_process" min="0" max="50" value="15" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_process_display">15%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="anal_process_bar" style="width: 15%">15%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>工具应用</label>
+                <input type="range" id="anal_tools" min="0" max="50" value="10" oninput="updateWeightDisplay('anal')">
+                <span class="value-display" id="anal_tools_display">10%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="anal_tools_bar" style="width: 10%">10%</div>
+                </div>
+            </div>
+            
+            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                <strong style="color: #0284c7;">当前总计：</strong>
+                <span id="anal_total" style="font-weight: bold; color: #0284c7;">100%</span>
+            </div>
+
             <h3 style="color: #4a5568; margin-top: 30px;">🎨 创意型岗位</h3>
+            <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
+                ⚠️ 请确保所有能力权重相加 = 100%
+            </p>
+            
             <div class="config-item">
                 <label>创新思维</label>
                 <input type="range" id="crea_innovation" min="0" max="50" value="25" oninput="updateWeightDisplay('crea')">
@@ -294,12 +379,53 @@
             </div>
 
             <div class="config-item">
-                <label>内容策划</label>
-                <input type="range" id="crea_content" min="0" max="50" value="25" oninput="updateWeightDisplay('crea')">
-                <span class="value-display" id="crea_content_display">25%</span>
+                <label>用户体验设计</label>
+                <input type="range" id="crea_ux" min="0" max="50" value="20" oninput="updateWeightDisplay('crea')">
+                <span class="value-display" id="crea_ux_display">20%</span>
                 <div class="weight-bar">
-                    <div class="weight-fill" id="crea_content_bar" style="width: 25%">25%</div>
+                    <div class="weight-fill" id="crea_ux_bar" style="width: 20%">20%</div>
                 </div>
+            </div>
+
+            <div class="config-item">
+                <label>内容策划</label>
+                <input type="range" id="crea_content" min="0" max="50" value="20" oninput="updateWeightDisplay('crea')">
+                <span class="value-display" id="crea_content_display">20%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="crea_content_bar" style="width: 20%">20%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>项目执行</label>
+                <input type="range" id="crea_execution" min="0" max="50" value="15" oninput="updateWeightDisplay('crea')">
+                <span class="value-display" id="crea_execution_display">15%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="crea_execution_bar" style="width: 15%">15%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>美感与设计</label>
+                <input type="range" id="crea_design" min="0" max="50" value="10" oninput="updateWeightDisplay('crea')">
+                <span class="value-display" id="crea_design_display">10%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="crea_design_bar" style="width: 10%">10%</div>
+                </div>
+            </div>
+
+            <div class="config-item">
+                <label>趋势洞察</label>
+                <input type="range" id="crea_trend" min="0" max="50" value="10" oninput="updateWeightDisplay('crea')">
+                <span class="value-display" id="crea_trend_display">10%</span>
+                <div class="weight-bar">
+                    <div class="weight-fill" id="crea_trend_bar" style="width: 10%">10%</div>
+                </div>
+            </div>
+            
+            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                <strong style="color: #0284c7;">当前总计：</strong>
+                <span id="crea_total" style="font-weight: bold; color: #0284c7;">100%</span>
             </div>
         </div>
 
@@ -406,11 +532,13 @@
 
         function updateWeightDisplay(category) {
             // 更新显示
+            let total = 0;
             const elements = document.querySelectorAll(`[id^="${category}_"]`);
             elements.forEach(el => {
                 if (el.tagName === 'INPUT' && el.type === 'range') {
                     const name = el.id;
-                    const value = el.value;
+                    const value = parseInt(el.value);
+                    total += value;
                     document.getElementById(name + '_display').textContent = value + '%';
                     const bar = document.getElementById(name + '_bar');
                     if (bar) {
@@ -419,6 +547,22 @@
                     }
                 }
             });
+            
+            // 更新总计显示
+            const totalElement = document.getElementById(category + '_total');
+            if (totalElement) {
+                totalElement.textContent = total + '%';
+                // 如果总和不等于100%，显示警告颜色
+                if (total !== 100) {
+                    totalElement.style.color = '#dc2626';
+                    totalElement.parentElement.style.borderLeftColor = '#dc2626';
+                    totalElement.parentElement.style.background = '#fef2f2';
+                } else {
+                    totalElement.style.color = '#0284c7';
+                    totalElement.parentElement.style.borderLeftColor = '#0284c7';
+                    totalElement.parentElement.style.background = '#f0f9ff';
+                }
+            }
         }
 
         function updateConfig() {
