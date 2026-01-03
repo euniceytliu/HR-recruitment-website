@@ -439,31 +439,50 @@
             resultCard.style.display = 'none';
 
             try {
-                // 🔒 安全改进：调用后端 API，而不是直接查询数据库
-                const response = await fetch('/api/query-case', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ phone, email })
-                });
+                // 🔒 安全查询：使用 RPC 函数查询（最安全）
+                const { data, error } = await supabaseClient
+                    .rpc('query_case_by_phone_email', {
+                        p_phone: phone,
+                        p_email: email
+                    });
 
-                const result = await response.json();
+                console.log('🔐 安全查询 - 使用 RPC 函数');
 
-                console.log('🔐 API查询响应:', result);
-
-                if (!response.ok) {
-                    alert('❌ ' + (result.error || '查询失败'));
-                    return;
+                if (error) {
+                    console.error('查询错误:', error);
+                    // 如果 RPC 不存在，回退到直接查询
+                    if (error.code === 'PGRST202' || error.message.includes('function')) {
+                        console.log('⚠️ RPC 函数不存在，使用直接查询');
+                        const { data: fallbackData, error: fallbackError } = await supabaseClient
+                            .from('case_submissions')
+                            .select('id, case_name, status, score, feedback, created_at, reviewed_at, reviewer')
+                            .eq('phone', phone)
+                            .eq('email', email)
+                            .order('created_at', { ascending: false })
+                            .limit(1);
+                        
+                        if (fallbackError) throw fallbackError;
+                        
+                        if (!fallbackData || fallbackData.length === 0) {
+                            alert('❌ 未找到匹配的案例记录\n\n请检查手机号和邮箱是否正确。');
+                            return;
+                        }
+                        
+                        displayResult(fallbackData[0]);
+                        document.getElementById('queryCard').style.display = 'none';
+                        resultCard.style.display = 'block';
+                        return;
+                    }
+                    throw error;
                 }
 
-                if (!result.success || !result.data) {
+                if (!data || data.length === 0) {
                     alert('❌ 未找到匹配的案例记录\n\n请检查手机号和邮箱是否正确。');
                     return;
                 }
 
                 // 显示结果
-                displayResult(result.data);
+                displayResult(data[0]);
                 
                 // 隐藏查询卡片，显示结果卡片
                 document.getElementById('queryCard').style.display = 'none';
