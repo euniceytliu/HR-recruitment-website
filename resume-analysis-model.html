@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历分析模型 - 腾讯HR智能评估系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            background: white;
+            padding: 48px 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .page-header .subtitle {
+            font-size: 18px;
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .page-header .tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 16px;
+            font-weight: 600;
+        }
+
+        /* 导航标签 */
+        .tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .tab:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .tab .title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* 内容区域 */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card h2 .icon {
+            font-size: 28px;
+        }
+
+        /* 能力维度网格 */
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .dimension-card {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .dimension-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .dimension-card .dimension-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .dimension-card .dimension-icon {
+            font-size: 32px;
+        }
+
+        .dimension-card .dimension-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .dimension-card .dimension-weight {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-left: auto;
+        }
+
+        .dimension-card .dimension-desc {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .dimension-card .dimension-criteria {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        /* 评分标准表格 */
+        .scoring-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .scoring-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .scoring-table th,
+        .scoring-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .scoring-table th {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .scoring-table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .score-excellent { background: #c6f6d5; color: #22543d; }
+        .score-good { background: #bee3f8; color: #2c5282; }
+        .score-average { background: #feebc8; color: #7c2d12; }
+        .score-poor { background: #fed7d7; color: #742a2a; }
+
+        /* 流程图 */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .process-step {
+            flex: 1;
+            min-width: 200px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .process-step::after {
+            content: '→';
+            position: absolute;
+            right: -24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #cbd5e0;
+        }
+
+        .process-step:last-child::after {
+            display: none;
+        }
+
+        .process-step .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .process-step .step-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .process-step .step-desc {
+            font-size: 13px;
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        /* 示例部分 */
+        .example-box {
+            background: #f7fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 24px;
+            border-left: 4px solid #48bb78;
+        }
+
+        .example-box h3 {
+            font-size: 18px;
+            color: #2d3748;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .example-content {
+            color: #4a5568;
+            line-height: 1.8;
+        }
+
+        .highlight {
+            background: #fef5e7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #c05621;
+            font-weight: 600;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 32px 24px;
+            }
+
+            .page-header h1 {
+                font-size: 28px;
+            }
+
+            .dimension-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .process-flow {
+                flex-direction: column;
+            }
+
+            .process-step::after {
+                content: '↓';
+                right: 50%;
+                top: auto;
+                bottom: -28px;
+                transform: translateX(50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1>🤖 AI 简历分析模型</h1>
+            <p class="subtitle">
+                基于腾讯 HR 多年经验构建的智能评估体系<br>
+                科学、公正、高效地评估候选人综合能力
+            </p>
+            <span class="tag">💎 智谱AI驱动 · 5大维度 · 105分满分</span>
+        </div>
+
+        <!-- 导航标签 -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('dimensions')">
+                <div class="icon">📊</div>
+                <div class="title">能力维度</div>
+            </div>
+            <div class="tab" onclick="switchTab('scoring')">
+                <div class="icon">⭐</div>
+                <div class="title">评分模型</div>
+            </div>
+            <div class="tab" onclick="switchTab('process')">
+                <div class="icon">🔄</div>
+                <div class="title">评估流程</div>
+            </div>
+            <div class="tab" onclick="switchTab('examples')">
+                <div class="icon">💡</div>
+                <div class="title">评分示例</div>
+            </div>
+        </div>
+
+        <!-- 内容1：能力维度 -->
+        <div id="dimensions" class="content-section active">
+            <div class="card">
+                <h2><span class="icon">📊</span> 五大能力维度详解</h2>
+                <p style="color: #718096; margin-bottom: 24px;">
+                    我们的AI模型从以下5个维度全方位评估候选人，总分<strong>105分</strong>，确保评估的全面性和准确性。
+                </p>
+
+                <div class="dimension-grid">
+                    <!-- 维度1 -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-icon">🎯</div>
+                            <div class="dimension-name">目标清晰度</div>
+                            <div class="dimension-weight">20分</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评估候选人对岗位的理解、职业规划的清晰度，以及求职动机的明确性。
+                        </div>
+                        <div class="dimension-criteria">
+                            <strong>评估要点：</strong><br>
+                            • 是否明确说明申请该岗位的原因<br>
+                            • 职业目标是否与岗位匹配<br>
+                            • 对岗位职责的理解深度
+                        </div>
+                    </div>
+
+                    <!-- 维度2 -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-icon">💼</div>
+                            <div class="dimension-name">专业能力</div>
+                            <div class="dimension-weight">30分</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评估候选人的专业技能水平、行业知识深度，以及相关项目经验的质量。
+                        </div>
+                        <div class="dimension-criteria">
+                            <strong>评估要点：</strong><br>
+                            • 专业技能的广度和深度<br>
+                            • 项目经验的相关性和复杂度<br>
+                            • 专业知识的更新程度
+                        </div>
+                    </div>
+
+                    <!-- 维度3 -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-icon">🧠</div>
+                            <div class="dimension-name">思维逻辑</div>
+                            <div class="dimension-weight">20分</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评估候选人的分析能力、问题解决能力，以及案例陈述的逻辑性。
+                        </div>
+                        <div class="dimension-criteria">
+                            <strong>评估要点：</strong><br>
+                            • 案例分析的结构化程度<br>
+                            • 问题识别和解决的逻辑<br>
+                            • 论证的严谨性和说服力
+                        </div>
+                    </div>
+
+                    <!-- 维度4 -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-icon">🚀</div>
+                            <div class="dimension-name">创新能力</div>
+                            <div class="dimension-weight">20分</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评估候选人的创新思维、独特见解，以及对新技术、新方法的探索能力。
+                        </div>
+                        <div class="dimension-criteria">
+                            <strong>评估要点：</strong><br>
+                            • 是否展示独特的解决方案<br>
+                            • 对新技术的学习和应用<br>
+                            • 创新思维的具体体现
+                        </div>
+                    </div>
+
+                    <!-- 维度5 -->
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-icon">✍️</div>
+                            <div class="dimension-name">表达质量</div>
+                            <div class="dimension-weight">15分</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评估候选人的文字表达能力、案例完整性，以及整体呈现的专业度。
+                        </div>
+                        <div class="dimension-criteria">
+                            <strong>评估要点：</strong><br>
+                            • 文字表达的清晰度和准确性<br>
+                            • 案例陈述的完整性<br>
+                            • 整体呈现的专业性
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容2：评分模型 -->
+        <div id="scoring" class="content-section">
+            <div class="card">
+                <h2><span class="icon">⭐</span> 评分标准与等级</h2>
+                
+                <table class="scoring-table">
+                    <thead>
+                        <tr>
+                            <th>维度</th>
+                            <th>满分</th>
+                            <th>优秀 (90%+)</th>
+                            <th>良好 (70-89%)</th>
+                            <th>合格 (60-69%)</th>
+                            <th>待提升 (<60%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>🎯 目标清晰度</strong></td>
+                            <td>20分</td>
+                            <td>18-20分</td>
+                            <td>14-17分</td>
+                            <td>12-13分</td>
+                            <td><12分</td>
+                        </tr>
+                        <tr>
+                            <td><strong>💼 专业能力</strong></td>
+                            <td>30分</td>
+                            <td>27-30分</td>
+                            <td>21-26分</td>
+                            <td>18-20分</td>
+                            <td><18分</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🧠 思维逻辑</strong></td>
+                            <td>20分</td>
+                            <td>18-20分</td>
+                            <td>14-17分</td>
+                            <td>12-13分</td>
+                            <td><12分</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🚀 创新能力</strong></td>
+                            <td>20分</td>
+                            <td>18-20分</td>
+                            <td>14-17分</td>
+                            <td>12-13分</td>
+                            <td><12分</td>
+                        </tr>
+                        <tr>
+                            <td><strong>✍️ 表达质量</strong></td>
+                            <td>15分</td>
+                            <td>14-15分</td>
+                            <td>11-13分</td>
+                            <td>9-10分</td>
+                            <td><9分</td>
+                        </tr>
+                        <tr style="background: #f7fafc; font-weight: 600;">
+                            <td><strong>总计</strong></td>
+                            <td><strong>105分</strong></td>
+                            <td>95-105分</td>
+                            <td>74-94分</td>
+                            <td>63-73分</td>
+                            <td><63分</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 32px;">
+                    <h3 style="font-size: 20px; margin-bottom: 16px; color: #2d3748;">📊 总分等级划分</h3>
+                    <div class="dimension-grid">
+                        <div class="dimension-card">
+                            <span class="score-badge score-excellent">优秀 (95-105分)</span>
+                            <p style="margin-top: 12px; color: #4a5568;">
+                                <strong>建议：</strong>强烈推荐进入面试环节<br>
+                                综合能力突出，各维度表现均衡
+                            </p>
+                        </div>
+                        <div class="dimension-card">
+                            <span class="score-badge score-good">良好 (74-94分)</span>
+                            <p style="margin-top: 12px; color: #4a5568;">
+                                <strong>建议：</strong>推荐进入面试环节<br>
+                                整体表现不错，部分维度需加强
+                            </p>
+                        </div>
+                        <div class="dimension-card">
+                            <span class="score-badge score-average">合格 (63-73分)</span>
+                            <p style="margin-top: 12px; color: #4a5568;">
+                                <strong>建议：</strong>视岗位需求决定<br>
+                                基本符合要求，但竞争力一般
+                            </p>
+                        </div>
+                        <div class="dimension-card">
+                            <span class="score-badge score-poor">待提升 (<63分)</span>
+                            <p style="margin-top: 12px; color: #4a5568;">
+                                <strong>建议：</strong>暂不推荐<br>
+                                多个维度需要显著提升
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容3：评估流程 -->
+        <div id="process" class="content-section">
+            <div class="card">
+                <h2><span class="icon">🔄</span> AI 智能评估流程</h2>
+                
+                <div class="process-flow">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">案例提交</div>
+                        <div class="step-desc">学生提交完整的案例分析，包括背景、方法、成果等</div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">AI 智能分析</div>
+                        <div class="step-desc">智谱AI模型自动解析案例内容，提取关键信息</div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">多维度评分</div>
+                        <div class="step-desc">从5个维度进行量化评分，生成详细评估报告</div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">HR 审核</div>
+                        <div class="step-desc">HR团队复核AI评估结果，确保公正性</div>
+                    </div>
+                    <div class="process-step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">结果反馈</div>
+                        <div class="step-desc">生成最终评估报告，反馈给候选人</div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h3>💡 AI 评估的优势</h3>
+                    <div class="example-content">
+                        <p style="margin-bottom: 12px;">
+                            <strong>1. 客观公正：</strong>AI模型基于既定标准评分，避免主观偏见
+                        </p>
+                        <p style="margin-bottom: 12px;">
+                            <strong>2. 高效快速：</strong>平均2-3分钟完成评估，大幅提升筛选效率
+                        </p>
+                        <p style="margin-bottom: 12px;">
+                            <strong>3. 详细反馈：</strong>提供分维度评分和改进建议，帮助候选人成长
+                        </p>
+                        <p>
+                            <strong>4. 持续优化：</strong>模型不断学习优化，评估标准与时俱进
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容4：评分示例 -->
+        <div id="examples" class="content-section">
+            <div class="card">
+                <h2><span class="icon">💡</span> 评分案例示例</h2>
+                
+                <div class="example-box" style="border-left-color: #48bb78;">
+                    <h3>✅ 优秀案例示例 (总分：92分)</h3>
+                    <div class="example-content">
+                        <p style="margin-bottom: 16px;"><strong>案例标题：</strong>搭建AI驱动的智能简历筛选工具</p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>🎯 目标清晰度 (18/20分)：</strong><br>
+                            候选人明确说明了 <span class="highlight">为什么选择HR岗位</span>，展示了对招聘流程的深入理解，职业规划清晰。
+                        </p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>💼 专业能力 (27/30分)：</strong><br>
+                            展示了 <span class="highlight">扎实的数据分析能力</span>，熟悉AI工具应用，项目经验丰富且相关性强。
+                        </p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>🧠 思维逻辑 (18/20分)：</strong><br>
+                            案例结构清晰，<span class="highlight">问题-分析-解决方案</span> 逻辑严谨，论证有说服力。
+                        </p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>🚀 创新能力 (17/20分)：</strong><br>
+                            提出了 <span class="highlight">将AI与传统招聘流程结合</span> 的创新方案，展示前瞻性思维。
+                        </p>
+                        
+                        <p>
+                            <strong>✍️ 表达质量 (12/15分)：</strong><br>
+                            文字表达清晰准确，案例陈述完整，整体呈现专业。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="example-box" style="border-left-color: #f6ad55;">
+                    <h3>⚠️ 待提升案例示例 (总分：55分)</h3>
+                    <div class="example-content">
+                        <p style="margin-bottom: 16px;"><strong>案例标题：</strong>我的实习经历</p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>🎯 目标清晰度 (9/20分)：</strong><br>
+                            <span style="color: #c53030;">❌ 未明确说明为什么申请该岗位</span>，职业目标模糊。
+                        </p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>💼 专业能力 (12/30分)：</strong><br>
+                            <span style="color: #c53030;">❌ 项目经验描述过于简单</span>，缺乏具体的成果和数据支撑。
+                        </p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>🧠 思维逻辑 (11/20分)：</strong><br>
+                            <span style="color: #c53030;">❌ 案例缺乏结构</span>，问题分析不够深入，逻辑跳跃。
+                        </p>
+                        
+                        <p style="margin-bottom: 12px;">
+                            <strong>🚀 创新能力 (10/20分)：</strong><br>
+                            <span style="color: #c53030;">❌ 未展示独特见解</span>，内容较为常规，缺乏亮点。
+                        </p>
+                        
+                        <p>
+                            <strong>✍️ 表达质量 (13/15分)：</strong><br>
+                            文字表达基本清晰，但案例不够完整，缺少关键细节。
+                        </p>
+                        
+                        <div style="margin-top: 16px; padding: 16px; background: white; border-radius: 8px;">
+                            <strong style="color: #667eea;">💡 改进建议：</strong><br>
+                            1. 明确职业目标，说明为何申请该岗位<br>
+                            2. 用STAR法则（情境-任务-行动-结果）描述项目经验<br>
+                            3. 增加数据支撑，展示量化成果<br>
+                            4. 提炼独特见解或创新点<br>
+                            5. 优化案例结构，确保逻辑清晰
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部操作按钮 -->
+        <div class="card">
+            <div class="action-buttons">
+                <a href="index.html" class="btn btn-secondary">
+                    ← 返回首页
+                </a>
+                <a href="application.html" class="btn btn-primary">
+                    📝 提交我的案例
+                </a>
+                <a href="case-result.html" class="btn btn-secondary">
+                    🔍 查询评估结果
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // 切换标签激活状态
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // 切换内容显示
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            // 平滑滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
