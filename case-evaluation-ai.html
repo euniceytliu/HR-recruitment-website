@@ -367,11 +367,67 @@
         let allCases = [];
         let selectedCase = null;
         let hasAIConfig = false;
+        let currentUser = null;
+
+        // 检查登录状态
+        async function checkAuth() {
+            const { data: { session } } = await caseSupabase.auth.getSession();
+            
+            if (!session) {
+                console.log('❌ 未登录，跳转到登录页面');
+                alert('⚠️ 请先登录 HR 管理系统');
+                window.location.href = 'hr-login.html';
+                return false;
+            }
+            
+            currentUser = session.user;
+            console.log('✅ 已登录:', currentUser.email);
+            
+            // 显示用户信息和登出按钮
+            displayUserInfo();
+            return true;
+        }
+
+        // 显示用户信息
+        function displayUserInfo() {
+            const header = document.querySelector('.header h1');
+            if (header && currentUser) {
+                const userInfo = document.createElement('div');
+                userInfo.style.cssText = 'float: right; font-size: 14px; color: #718096;';
+                userInfo.innerHTML = `
+                    <span>👤 ${currentUser.email}</span>
+                    <button onclick="logout()" style="
+                        margin-left: 16px;
+                        padding: 6px 16px;
+                        background: #f56565;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 13px;
+                    ">登出</button>
+                `;
+                header.parentElement.insertBefore(userInfo, header);
+            }
+        }
+
+        // 登出功能
+        async function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                await caseSupabase.auth.signOut();
+                window.location.href = 'hr-login.html';
+            }
+        }
 
         // 初始化
         window.onload = async function() {
             // 创建Supabase客户端
             caseSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            // 检查登录状态
+            const isAuthenticated = await checkAuth();
+            if (!isAuthenticated) return;
+            
             checkAIConfig();
             await loadCases();
         };
