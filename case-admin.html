@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>案例提交管理后台 - 腾讯HR</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
     <style>
         * {
             margin: 0;
@@ -320,12 +319,17 @@
     </div>
 
     <script>
-        let supabase;
+        // Supabase配置
+        const SUPABASE_URL = 'https://gevvmjwjmpjhwczfuiru.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
+        
+        let supabaseClient;
         let allData = [];
 
         // 初始化
         window.onload = async function() {
-            supabase = initSupabase();
+            // 创建Supabase客户端
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             await loadData();
         };
 
@@ -338,7 +342,7 @@
             dataTable.style.display = 'none';
 
             try {
-                let query = supabase
+                let query = supabaseClient
                     .from('case_submissions')
                     .select('*')
                     .order('created_at', { ascending: false });

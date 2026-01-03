@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案例评估结果查询 - 腾讯HR职业成长伙伴</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* 查询卡片 */
+        .query-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+        }
+
+        .query-card h2 {
+            color: #2d3748;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .btn-query {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-query:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+        }
+
+        .btn-query:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 结果卡片 */
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .result-header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #d68910;
+        }
+
+        .status-reviewed {
+            background: #d5f4e6;
+            color: #0f5132;
+        }
+
+        .status-rejected {
+            background: #fadbd8;
+            color: #c0392b;
+        }
+
+        .score-display {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #48bb78 0deg,
+                #48bb78 var(--score-deg),
+                #e2e8f0 var(--score-deg),
+                #e2e8f0 360deg
+            );
+            animation: fillScore 1.5s ease-out;
+        }
+
+        @keyframes fillScore {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .score-circle::after {
+            content: '';
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .score-number {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #2d3748;
+            z-index: 1;
+        }
+
+        .score-label {
+            font-size: 1.1em;
+            color: #718096;
+            z-index: 1;
+        }
+
+        .section {
+            margin: 30px 0;
+        }
+
+        .section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .dimension-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .dimension-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .dimension-score {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .dimension-comment {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .feedback-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        .feedback-item::before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .strength-item {
+            border-left-color: #48bb78;
+        }
+
+        .strength-item::before {
+            content: '✓';
+            color: #48bb78;
+        }
+
+        .improvement-item {
+            border-left-color: #ed8936;
+        }
+
+        .improvement-item::before {
+            content: '!';
+            color: #ed8936;
+        }
+
+        .suggestion-item {
+            border-left-color: #4299e1;
+        }
+
+        .suggestion-item::before {
+            content: '💡';
+        }
+
+        .case-info {
+            background: #ebf8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .case-info-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #bee3f8;
+        }
+
+        .case-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .case-info-label {
+            font-weight: 500;
+            color: #2c5282;
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .case-info-value {
+            color: #2d3748;
+            flex: 1;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-warning {
+            background: #fff5e1;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            color: #075985;
+        }
+
+        .btn-back {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 案例评估结果查询</h1>
+            <p>查看您的案例评审进度和详细反馈</p>
+        </div>
+
+        <!-- 查询表单 -->
+        <div class="query-card" id="queryCard">
+            <h2>📋 输入信息查询结果</h2>
+            
+            <form id="queryForm" onsubmit="queryResult(event)">
+                <div class="form-group">
+                    <label>手机号 *</label>
+                    <input type="tel" id="phone" required 
+                           placeholder="请输入提交时填写的手机号"
+                           pattern="1[3-9]\d{9}">
+                </div>
+
+                <div class="form-group">
+                    <label>邮箱 *</label>
+                    <input type="email" id="email" required 
+                           placeholder="请输入提交时填写的邮箱">
+                </div>
+
+                <button type="submit" class="btn-query" id="queryBtn">
+                    🔍 查询结果
+                </button>
+            </form>
+
+            <div class="alert alert-info" style="margin-top: 20px;">
+                <strong>💡 提示</strong><br>
+                请输入您提交案例时填写的<strong>手机号</strong>和<strong>邮箱</strong>进行查询。<br>
+                评审通常在提交后 3-5 个工作日内完成。
+            </div>
+        </div>
+
+        <!-- 结果展示 -->
+        <div class="result-card" id="resultCard">
+            <!-- 结果内容将动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gevvmjwjmpjhwczfuiru.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
+
+        let supabaseClient;
+
+        window.onload = function() {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        };
+
+        async function queryResult(event) {
+            event.preventDefault();
+
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const queryBtn = document.getElementById('queryBtn');
+            const resultCard = document.getElementById('resultCard');
+
+            // 显示加载状态
+            queryBtn.disabled = true;
+            queryBtn.innerHTML = '⏳ 查询中...';
+            resultCard.style.display = 'none';
+
+            try {
+                // 🔒 安全改进：调用后端 API，而不是直接查询数据库
+                const response = await fetch('/api/query-case', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone, email })
+                });
+
+                const result = await response.json();
+
+                console.log('🔐 API查询响应:', result);
+
+                if (!response.ok) {
+                    alert('❌ ' + (result.error || '查询失败'));
+                    return;
+                }
+
+                if (!result.success || !result.data) {
+                    alert('❌ 未找到匹配的案例记录\n\n请检查手机号和邮箱是否正确。');
+                    return;
+                }
+
+                // 显示结果
+                displayResult(result.data);
+                
+                // 隐藏查询卡片，显示结果卡片
+                document.getElementById('queryCard').style.display = 'none';
+                resultCard.style.display = 'block';
+
+            } catch (error) {
+                console.error('查询失败:', error);
+                alert('❌ 查询失败: ' + error.message);
+            } finally {
+                queryBtn.disabled = false;
+                queryBtn.innerHTML = '🔍 查询结果';
+            }
+        }
+
+        function displayResult(caseData) {
+            const resultCard = document.getElementById('resultCard');
+            const status = caseData.status || 'pending';
+            const statusText = {
+                'pending': '待审核',
+                'reviewed': '已评审',
+                'rejected': '未通过'
+            }[status] || '待审核';
+
+            const statusClass = {
+                'pending': 'status-pending',
+                'reviewed': 'status-reviewed',
+                'rejected': 'status-rejected'
+            }[status] || 'status-pending';
+
+            let content = '';
+
+            // 头部状态
+            content += `
+                <div class="result-header">
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <h2>案例评估结果</h2>
+                </div>
+            `;
+
+            // 案例基本信息
+            content += `
+                <div class="case-info">
+                    <div class="case-info-row">
+                        <span class="case-info-label">姓名</span>
+                        <span class="case-info-value">${caseData.name}</span>
+                    </div>
+                    <div class="case-info-row">
+                        <span class="case-info-label">学校</span>
+                        <span class="case-info-value">${caseData.school || '未填写'}</span>
+                    </div>
+                    <div class="case-info-row">
+                        <span class="case-info-label">案例名称</span>
+                        <span class="case-info-value">${caseData.case_name}</span>
+                    </div>
+                    <div class="case-info-row">
+                        <span class="case-info-label">提交时间</span>
+                        <span class="case-info-value">${new Date(caseData.created_at).toLocaleString('zh-CN')}</span>
+                    </div>
+                    ${caseData.reviewed_at ? `
+                    <div class="case-info-row">
+                        <span class="case-info-label">评审时间</span>
+                        <span class="case-info-value">${new Date(caseData.reviewed_at).toLocaleString('zh-CN')}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            if (status === 'pending') {
+                // 待审核状态
+                content += `
+                    <div class="alert alert-warning">
+                        <strong>⏳ 您的案例正在审核中</strong><br>
+                        我们通常在 3-5 个工作日内完成评审。<br>
+                        评审完成后，您可以回到此页面查看详细结果。<br>
+                        <br>
+                        <strong>温馨提示：</strong>请保存此页面链接，方便后续查询。
+                    </div>
+                `;
+            } else if (status === 'reviewed' && caseData.score) {
+                // 已评审状态 - 显示详细结果
+                const score = caseData.score;
+                const scoreDeg = (score / 105) * 360; // 满分105（100+5加分）
+
+                content += `
+                    <div class="score-display">
+                        <div class="score-circle" style="--score-deg: ${scoreDeg}deg">
+                            <div class="score-number">${score}</div>
+                            <div class="score-label">总分 / 105</div>
+                        </div>
+                    </div>
+                `;
+
+                // 解析反馈JSON
+                let evaluation = null;
+                try {
+                    evaluation = JSON.parse(caseData.feedback);
+                } catch (e) {
+                    console.error('解析评估数据失败:', e);
+                }
+
+                if (evaluation) {
+                    // 各维度得分
+                    if (evaluation.dimensions) {
+                        content += `
+                            <div class="section">
+                                <h3>📊 各维度评分</h3>
+                        `;
+
+                        const dimensionNames = {
+                            completeness: '📋 提交材料完整性',
+                            product: '🎯 产品功能与质量',
+                            aiCollaboration: '🤖 AI协同能力',
+                            delivery: '🚀 全流程交付能力',
+                            learning: '💡 学习能力与创新性',
+                            documentation: '📄 文档质量（加分项）'
+                        };
+
+                        for (const [key, dim] of Object.entries(evaluation.dimensions)) {
+                            content += `
+                                <div class="dimension-item">
+                                    <div class="dimension-header">
+                                        <span class="dimension-name">${dimensionNames[key] || key}</span>
+                                        <span class="dimension-score">${dim.score}/${dim.maxScore}分</span>
+                                    </div>
+                                    <div class="dimension-comment">${dim.comment}</div>
+                                </div>
+                            `;
+                        }
+
+                        content += `</div>`;
+                    }
+
+                    // 主要优势
+                    if (evaluation.strengths && evaluation.strengths.length > 0) {
+                        content += `
+                            <div class="section">
+                                <h3>✨ 主要优势</h3>
+                        `;
+
+                        evaluation.strengths.forEach(s => {
+                            content += `
+                                <div class="feedback-item strength-item">${s}</div>
+                            `;
+                        });
+
+                        content += `</div>`;
+                    }
+
+                    // 改进建议
+                    if (evaluation.improvements && evaluation.improvements.length > 0) {
+                        content += `
+                            <div class="section">
+                                <h3>📈 改进建议</h3>
+                        `;
+
+                        evaluation.improvements.forEach(i => {
+                            content += `
+                                <div class="feedback-item improvement-item">${i}</div>
+                            `;
+                        });
+
+                        content += `</div>`;
+                    }
+
+                    // 发展建议
+                    if (evaluation.suggestions && evaluation.suggestions.length > 0) {
+                        content += `
+                            <div class="section">
+                                <h3>💼 职业发展建议</h3>
+                        `;
+
+                        evaluation.suggestions.forEach(s => {
+                            content += `
+                                <div class="feedback-item suggestion-item">${s}</div>
+                            `;
+                        });
+
+                        content += `</div>`;
+                    }
+                }
+
+                // 评审结论
+                content += `
+                    <div class="alert alert-info" style="margin-top: 30px;">
+                        <strong>📋 评审结论</strong><br>
+                        ${score >= 80 ? '🎉 <strong>优秀！</strong>您的案例质量很高，展现了出色的AI应用能力和产品交付能力。' : ''}
+                        ${score >= 60 && score < 80 ? '👍 <strong>良好！</strong>您的案例有一定质量，建议参考改进建议进一步提升。' : ''}
+                        ${score < 60 ? '💪 <strong>需要改进。</strong>建议您参考评审反馈，优化产品功能和材料完整性后重新提交。' : ''}
+                        <br><br>
+                        如有疑问，请联系HR团队：hr@tencent.com
+                    </div>
+                `;
+            } else {
+                // 其他状态
+                content += `
+                    <div class="alert alert-warning">
+                        <strong>⚠️ 暂无详细评估结果</strong><br>
+                        评审正在进行中，请稍后再查询。
+                    </div>
+                `;
+            }
+
+            // 返回按钮
+            content += `
+                <a href="javascript:void(0)" class="btn-back" onclick="backToQuery()">
+                    ← 返回查询页面
+                </a>
+            `;
+
+            resultCard.innerHTML = content;
+        }
+
+        function backToQuery() {
+            document.getElementById('queryCard').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('queryForm').reset();
+        }
+    </script>
+</body>
+</html>

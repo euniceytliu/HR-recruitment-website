@@ -1,0 +1,3 @@
+# 拒绝所有访问
+Order deny,allow
+Deny from all

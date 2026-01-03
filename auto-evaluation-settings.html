@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动评估设置 - 案例管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .switch-label {
+            flex: 1;
+        }
+
+        .switch-label h3 {
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .switch-label p {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        .switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e0;
+            transition: .4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #48bb78;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-item label {
+            display: block;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .setting-item input[type="number"],
+        .setting-item input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .setting-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-enabled {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-disabled {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ 自动评估设置</h1>
+            <p style="color: #718096;">控制案例提交后是否自动触发AI评估</p>
+        </div>
+
+        <!-- 主开关 -->
+        <div class="card">
+            <h2>🎯 主开关</h2>
+            <div class="switch-container">
+                <div class="switch-label">
+                    <h3>启用自动评估</h3>
+                    <p>开启后，符合条件的案例将在提交后自动进行AI评估</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="enabledSwitch" onchange="toggleAutoEvaluation()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div id="statusBox"></div>
+
+            <div class="warning-box">
+                <strong>⚠️ 成本提示</strong><br>
+                开启自动评估后，每个符合条件的提交都会调用AI API（约￥0.01-0.02/次）。<br>
+                建议：先开启前置检查，过滤掉低质量提交，减少不必要的费用。
+            </div>
+        </div>
+
+        <!-- 前置检查 -->
+        <div class="card">
+            <h2>🔍 前置检查规则</h2>
+            <p style="color: #718096; margin-bottom: 20px;">只有通过这些检查的案例才会触发自动评估（免费检查）</p>
+
+            <div class="setting-item">
+                <label>产品链接最小长度</label>
+                <input type="number" id="minUrlLength" value="20" min="10" max="100">
+            </div>
+
+            <div class="setting-item">
+                <label>AI提示词最小字数</label>
+                <input type="number" id="minPromptsLength" value="100" min="50" max="500">
+            </div>
+
+            <div class="setting-item">
+                <label>产品说明最小字数</label>
+                <input type="number" id="minSummaryLength" value="200" min="100" max="1000">
+            </div>
+
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" id="requireVideo">
+                    必须提供演示视频
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" id="requireDocument">
+                    必须提交说明文档
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <label>黑名单关键词（逗号分隔）</label>
+                <input type="text" id="blacklistKeywords" value="test,测试,demo,示例" 
+                       placeholder="例如: test,测试,demo">
+            </div>
+
+            <div class="info-box">
+                <strong>💡 建议设置</strong><br>
+                • 提示词 ≥ 300字：确保学生认真填写AI交互过程<br>
+                • 产品说明 ≥ 500字：确保有足够的评估依据<br>
+                • 启用黑名单：过滤测试提交
+            </div>
+        </div>
+
+        <!-- 评估策略 -->
+        <div class="card">
+            <h2>🤖 评估策略</h2>
+
+            <div class="setting-item">
+                <label>评估延迟（秒）</label>
+                <input type="number" id="delaySeconds" value="5" min="0" max="60">
+                <small style="color: #718096;">提交后延迟评估，防止用户重复提交</small>
+            </div>
+
+            <div class="setting-item">
+                <label>失败重试次数</label>
+                <input type="number" id="maxRetries" value="2" min="0" max="5">
+            </div>
+
+            <div class="setting-item">
+                <label>重试间隔（秒）</label>
+                <input type="number" id="retryIntervalSeconds" value="3" min="1" max="10">
+            </div>
+        </div>
+
+        <!-- 保存按钮 -->
+        <div class="card">
+            <button class="btn" onclick="saveSettings()">💾 保存设置</button>
+            <button class="btn" style="background: #718096; margin-left: 10px;" onclick="resetSettings()">
+                🔄 恢复默认
+            </button>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="card">
+            <h2>📖 使用说明</h2>
+            
+            <h3 style="margin-top: 20px;">方案对比</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <tr style="background: #f7fafc;">
+                    <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">方案</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">优点</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">缺点</th>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>手动评估</strong>（推荐）</td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">
+                        • 节省成本<br>
+                        • 质量可控<br>
+                        • 可重评
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">
+                        • 需人工操作
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>自动评估</strong></td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">
+                        • 全自动<br>
+                        • 实时反馈<br>
+                        • 体验好
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #e2e8f0;">
+                        • 成本较高<br>
+                        • 可能被滥用
+                    </td>
+                </tr>
+            </table>
+
+            <h3 style="margin-top: 20px;">推荐配置</h3>
+            <div class="success-box">
+                <strong>💡 混合方案（推荐）</strong><br>
+                1. <strong>关闭自动评估</strong>（默认）<br>
+                2. <strong>使用手动评估页面</strong>批量处理<br>
+                3. <strong>只在招聘高峰期</strong>短暂开启自动评估<br>
+                4. <strong>设置严格的前置检查</strong>过滤低质量提交
+            </div>
+        </div>
+    </div>
+
+    <script src="auto-evaluation-config.js"></script>
+    <script>
+        // 页面加载时读取配置
+        window.onload = function() {
+            loadSettings();
+            updateStatus();
+        };
+
+        // 加载设置
+        function loadSettings() {
+            const config = AUTO_EVALUATION_CONFIG;
+
+            // 主开关
+            document.getElementById('enabledSwitch').checked = config.enabled;
+
+            // 前置检查
+            document.getElementById('minUrlLength').value = config.preChecks.minUrlLength;
+            document.getElementById('minPromptsLength').value = config.preChecks.minPromptsLength;
+            document.getElementById('minSummaryLength').value = config.preChecks.minSummaryLength;
+            document.getElementById('requireVideo').checked = config.preChecks.requireVideo;
+            document.getElementById('requireDocument').checked = config.preChecks.requireDocument;
+            document.getElementById('blacklistKeywords').value = config.preChecks.blacklistKeywords.join(',');
+
+            // 评估策略
+            document.getElementById('delaySeconds').value = config.strategy.delaySeconds;
+            document.getElementById('maxRetries').value = config.strategy.maxRetries;
+            document.getElementById('retryIntervalSeconds').value = config.strategy.retryIntervalSeconds;
+        }
+
+        // 切换自动评估
+        function toggleAutoEvaluation() {
+            const enabled = document.getElementById('enabledSwitch').checked;
+            AUTO_EVALUATION_CONFIG.enabled = enabled;
+            updateStatus();
+            
+            // 保存到 localStorage
+            localStorage.setItem('autoEvaluationEnabled', enabled);
+        }
+
+        // 更新状态显示
+        function updateStatus() {
+            const enabled = AUTO_EVALUATION_CONFIG.enabled;
+            const statusBox = document.getElementById('statusBox');
+
+            if (enabled) {
+                statusBox.innerHTML = `
+                    <div class="success-box">
+                        <strong>✅ 自动评估已启用</strong><br>
+                        符合条件的案例将在提交后自动进行AI评估。<br>
+                        当前状态: <span class="status-badge status-enabled">运行中</span>
+                    </div>
+                `;
+            } else {
+                statusBox.innerHTML = `
+                    <div class="info-box">
+                        <strong>ℹ️ 自动评估已关闭</strong><br>
+                        案例提交后不会自动评估，需要在<a href="case-evaluation-ai.html">评估页面</a>手动触发。<br>
+                        当前状态: <span class="status-badge status-disabled">已禁用</span>
+                    </div>
+                `;
+            }
+        }
+
+        // 保存设置
+        function saveSettings() {
+            const config = AUTO_EVALUATION_CONFIG;
+
+            // 收集设置
+            config.enabled = document.getElementById('enabledSwitch').checked;
+            
+            config.preChecks.minUrlLength = parseInt(document.getElementById('minUrlLength').value);
+            config.preChecks.minPromptsLength = parseInt(document.getElementById('minPromptsLength').value);
+            config.preChecks.minSummaryLength = parseInt(document.getElementById('minSummaryLength').value);
+            config.preChecks.requireVideo = document.getElementById('requireVideo').checked;
+            config.preChecks.requireDocument = document.getElementById('requireDocument').checked;
+            config.preChecks.blacklistKeywords = document.getElementById('blacklistKeywords').value.split(',').map(k => k.trim());
+
+            config.strategy.delaySeconds = parseInt(document.getElementById('delaySeconds').value);
+            config.strategy.maxRetries = parseInt(document.getElementById('maxRetries').value);
+            config.strategy.retryIntervalSeconds = parseInt(document.getElementById('retryIntervalSeconds').value);
+
+            // 保存到 localStorage
+            localStorage.setItem('autoEvaluationConfig', JSON.stringify(config));
+
+            alert('✅ 设置已保存！');
+        }
+
+        // 恢复默认
+        function resetSettings() {
+            if (confirm('确定要恢复默认设置吗？')) {
+                localStorage.removeItem('autoEvaluationConfig');
+                localStorage.removeItem('autoEvaluationEnabled');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

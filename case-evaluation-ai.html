@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案例智能评估系统 - 腾讯HR</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="zhipu-api-config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .api-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .api-connected {
+            background: #f0fff4;
+            color: #22543d;
+        }
+
+        .api-disconnected {
+            background: #fff5f5;
+            color: #742a2a;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .case-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .case-item {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .case-item:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+        }
+
+        .case-item.selected {
+            background: #ebf8ff;
+            border-color: #667eea;
+        }
+
+        .case-item .name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .case-item .info {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .case-item .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #d68910;
+        }
+
+        .status-evaluated {
+            background: #f0fff4;
+            color: #22543d;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .case-detail {
+            margin-bottom: 30px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-section:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            color: #4a5568;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .evaluate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+
+        .evaluate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .evaluate-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .evaluation-result {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .score-number {
+            font-size: 72px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .score-label {
+            color: #718096;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .evaluation-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .evaluation-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .evaluation-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .evaluation-item .label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .evaluation-item .score {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .evaluation-item .comment {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .save-btn:hover {
+            background: #38a169;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🤖 案例智能评估系统</h1>
+            <p style="color: #718096; margin-top: 5px;">基于腾讯HR评估标准的AI自动评分系统</p>
+            <div class="api-status" id="apiStatus">
+                <span>⏳ 检测AI配置中...</span>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 左侧案例列表 -->
+            <div class="sidebar">
+                <h3>📋 待评估案例</h3>
+                <div id="caseList" class="case-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>加载案例中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧详情和评估区 -->
+            <div class="content-area">
+                <div id="emptyState" class="empty-state">
+                    <h3>👈 请从左侧选择要评估的案例</h3>
+                    <p>系统将自动分析案例并生成评估报告</p>
+                </div>
+
+                <div id="detailArea" style="display: none;">
+                    <button class="evaluate-btn" id="evaluateBtn">
+                        🚀 开始AI智能评估
+                    </button>
+
+                    <div class="case-detail" id="caseDetail"></div>
+
+                    <div id="evaluationResult" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase配置
+        const SUPABASE_URL = 'https://gevvmjwjmpjhwczfuiru.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdldnZtandqbXBqaHdjemZ1aXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTkyOTYsImV4cCI6MjA4MTc5NTI5Nn0.iA0eIjnudgmYHsVE_ioHTR8fR84oIciQqqNcbSBZ33I';
+        
+        let caseSupabase;
+        let allCases = [];
+        let selectedCase = null;
+        let hasAIConfig = false;
+
+        // 初始化
+        window.onload = async function() {
+            // 创建Supabase客户端
+            caseSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            checkAIConfig();
+            await loadCases();
+        };
+
+        // 检查AI配置
+        function checkAIConfig() {
+            const statusEl = document.getElementById('apiStatus');
+            
+            if (typeof ZHIPU_CONFIG !== 'undefined' && ZHIPU_CONFIG.apiKey && 
+                !ZHIPU_CONFIG.apiKey.includes('your-api-key')) {
+                hasAIConfig = true;
+                statusEl.className = 'api-status api-connected';
+                statusEl.innerHTML = '✅ AI评估已启用 (智谱AI)';
+            } else {
+                statusEl.className = 'api-status api-disconnected';
+                statusEl.innerHTML = '⚠️ 未配置AI - 请配置zhipu-api-config.js';
+            }
+        }
+
+        // 加载案例列表
+        async function loadCases() {
+            try {
+                const { data, error } = await caseSupabase
+                    .from('case_submissions')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allCases = data;
+                renderCaseList(data);
+            } catch (error) {
+                console.error('加载案例失败:', error);
+                document.getElementById('caseList').innerHTML = 
+                    '<div class="loading"><p style="color: #e53e3e;">加载失败: ' + error.message + '</p></div>';
+            }
+        }
+
+        // 渲染案例列表
+        function renderCaseList(cases) {
+            const listEl = document.getElementById('caseList');
+            
+            if (cases.length === 0) {
+                listEl.innerHTML = '<div class="loading"><p>暂无案例提交</p></div>';
+                return;
+            }
+
+            listEl.innerHTML = cases.map(c => `
+                <div class="case-item" onclick="selectCase(${c.id})">
+                    <div class="name">${c.name}</div>
+                    <div class="info">${c.school}</div>
+                    <div class="info">${new Date(c.created_at).toLocaleDateString()}</div>
+                    <span class="status-badge ${c.score ? 'status-evaluated' : 'status-pending'}">
+                        ${c.score ? '已评估 (' + c.score + '分)' : '待评估'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // 选择案例
+        function selectCase(id) {
+            selectedCase = allCases.find(c => c.id === id);
+            
+            // 更新列表选中状态
+            document.querySelectorAll('.case-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            // 显示详情
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('detailArea').style.display = 'block';
+            renderCaseDetail(selectedCase);
+            
+            // 如果已有评估结果,显示
+            if (selectedCase.score && selectedCase.feedback) {
+                showSavedEvaluation(selectedCase);
+            } else {
+                document.getElementById('evaluationResult').style.display = 'none';
+            }
+        }
+
+        // 渲染案例详情
+        function renderCaseDetail(caseData) {
+            const detailEl = document.getElementById('caseDetail');
+            detailEl.innerHTML = `
+                <h2 style="margin-bottom: 25px; color: #2d3748;">📝 案例详情</h2>
+                
+                <div class="detail-section">
+                    <div class="detail-label">👤 基本信息</div>
+                    <div class="detail-value">
+                        <strong>姓名：</strong>${caseData.name}<br>
+                        <strong>学校：</strong>${caseData.school}<br>
+                        <strong>联系方式：</strong>${caseData.phone} / ${caseData.email}<br>
+                        <strong>提交时间：</strong>${new Date(caseData.created_at).toLocaleString('zh-CN')}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">🎯 选择的案例</div>
+                    <div class="detail-value">${caseData.case_name}</div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">🔗 产品链接</div>
+                    <div class="detail-value">
+                        <a href="${caseData.product_url}" target="_blank" class="link">${caseData.product_url}</a>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">🎥 演示视频</div>
+                    <div class="detail-value">
+                        <a href="${caseData.video_url}" target="_blank" class="link">${caseData.video_url}</a>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">💡 核心AI提示词</div>
+                    <div class="detail-value">${caseData.prompts}</div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">📊 产品说明与测试结果</div>
+                    <div class="detail-value">${caseData.summary}</div>
+                </div>
+
+                ${caseData.document_url ? `
+                <div class="detail-section">
+                    <div class="detail-label">📄 说明文档</div>
+                    <div class="detail-value">${caseData.document_name || '已上传'}</div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // 开始评估
+        document.getElementById('evaluateBtn').addEventListener('click', async function() {
+            if (!hasAIConfig) {
+                alert('请先配置AI API Key（zhipu-api-config.js）');
+                return;
+            }
+
+            if (!selectedCase) {
+                alert('请先选择要评估的案例');
+                return;
+            }
+
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = '🤖 AI评估中，请稍候...';
+
+            const resultEl = document.getElementById('evaluationResult');
+            resultEl.style.display = 'block';
+            resultEl.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>AI正在分析案例，预计需要10-20秒...</p>
+                </div>
+            `;
+
+            try {
+                const evaluation = await evaluateCase(selectedCase);
+                displayEvaluation(evaluation);
+                btn.textContent = '✅ 评估完成';
+            } catch (error) {
+                console.error('评估失败:', error);
+                resultEl.innerHTML = `
+                    <div class="loading">
+                        <p style="color: #e53e3e;">❌ 评估失败: ${error.message}</p>
+                        <p style="font-size: 12px; margin-top: 10px;">请检查AI配置或稍后重试</p>
+                    </div>
+                `;
+                btn.disabled = false;
+                btn.textContent = '🚀 重新评估';
+            }
+        });
+
+        // AI评估函数
+        async function evaluateCase(caseData) {
+            // 前置检查：材料完整性
+            const checks = {
+                hasValidUrl: caseData.product_url && caseData.product_url.length > 20 && !caseData.product_url.includes('test'),
+                hasValidVideo: caseData.video_url && caseData.video_url.length > 20 && !caseData.video_url.includes('test'),
+                hasValidPrompts: caseData.prompts && caseData.prompts.length > 100,
+                hasValidSummary: caseData.summary && caseData.summary.length > 200,
+                hasDocument: !!caseData.document_url
+            };
+
+            // 计算缺失材料数量
+            const missingCount = Object.values(checks).filter(v => !v).length;
+            
+            // 如果关键材料缺失过多，直接返回低分
+            if (missingCount >= 3) {
+                return {
+                    totalScore: 35 + (5 - missingCount) * 5,
+                    dimensions: {
+                        completeness: {
+                            score: 5,
+                            maxScore: 20,
+                            comment: `严重缺失材料：${!checks.hasValidUrl ? '产品链接无效或为测试链接；' : ''}${!checks.hasValidVideo ? '演示视频链接无效；' : ''}${!checks.hasValidPrompts ? 'AI提示词过于简单（少于100字）；' : ''}${!checks.hasValidSummary ? '产品说明过于简单（少于200字）；' : ''}${!checks.hasDocument ? '未提交说明文档。' : ''}`
+                        },
+                        product: { score: 10, maxScore: 30, comment: "无法验证产品功能，提交的链接无效或为测试链接" },
+                        aiCollaboration: { score: 8, maxScore: 25, comment: "提示词内容过于简单，无法评估AI协同能力" },
+                        delivery: { score: 5, maxScore: 15, comment: "测试材料不完整，无法评估交付能力" },
+                        learning: { score: 5, maxScore: 10, comment: "创新性和学习能力体现不足" },
+                        documentation: { score: 0, maxScore: 5, comment: "文档质量不足" }
+                    },
+                    strengths: ["提交了案例尝试（基础分）"],
+                    improvements: [
+                        "【致命问题】产品链接无效或为测试链接，无法验证产品是否真实可用",
+                        "【关键缺失】材料完整性严重不足，缺少多项必要材料",
+                        "【内容质量】提交内容过于简单，未达到评估的最低标准"
+                    ],
+                    suggestions: [
+                        "【立即行动】请提供真实可访问的产品链接，确保产品可以正常使用",
+                        "【补充材料】完善所有必需材料：有效的演示视频、完整的AI提示词（至少300字）、详细的产品说明（至少500字）",
+                        "【重新提交】建议在完善所有材料后重新提交，当前提交不符合评估要求"
+                    ],
+                    summary: "材料严重不完整，产品链接无效，无法进行有效评估，建议补充材料后重新提交"
+                };
+            }
+
+            const prompt = `你是腾讯HR的专业案例评估专家。请严格按照以下评估标准对学生提交的案例进行评分。
+
+⚠️ 重要提醒：
+- 你无法真正访问链接，只能根据文字描述评估
+- 如果提示词内容过于简单（如"test"、"测试"等），必须大幅扣分
+- 如果产品说明不详细，无法判断功能质量，必须给予低分
+- 评分必须严格，宁可偏严不可偏松
+
+# 评估标准（总分100分）
+
+## 一、提交材料完整性（20分）
+- 可运行的产品：5分
+- 演示视频：3分
+- 核心AI提示词：4分
+- 测试数据与结果：4分
+- 说明文档：4分
+
+## 二、产品功能与质量（30分）
+- 核心功能实现：15分（优秀13-15，良好10-12，及格7-9）
+- AI效果质量：15分（优秀13-15，良好10-12，及格7-9）
+
+## 三、AI协同能力（25分）
+- 问题定义能力：8分（优秀7-8，良好5-6，及格3-4）
+- AI提示词设计：10分（明确性、结构性、迭代优化）
+- 方案判断能力：7分（优秀6-7，良好4-5，及格2-3）
+
+## 四、全流程交付能力（15分）
+- 任务拆解：5分
+- 测试验证：5分
+- 问题识别与优化：5分
+
+## 五、学习能力与创新性（10分）
+- 快速学习能力：5分
+- 创新性：5分
+
+## 六、文档质量（加分项，最高+5分）
+- 文档结构清晰：+2分
+- 丰富的可视化：+2分
+- 逻辑严密专业：+1分
+
+---
+
+# 学生提交的案例信息
+
+**案例名称：** ${caseData.case_name}
+
+**产品链接：** ${caseData.product_url}
+⚠️ 注意：你无法访问此链接，只能根据其他文字信息推断
+
+**演示视频：** ${caseData.video_url}
+⚠️ 注意：你无法观看视频，只能根据其他文字信息推断
+
+**核心AI提示词（字数：${caseData.prompts.length}字）：**
+${caseData.prompts}
+⚠️ 如果内容过于简单（如"test"、少于50字），必须在"提交材料完整性"和"AI协同能力"维度严格扣分
+
+**产品说明与测试结果（字数：${caseData.summary.length}字）：**
+${caseData.summary}
+⚠️ 如果内容过于简单（少于100字），必须在"产品功能与质量"和"全流程交付能力"维度严格扣分
+
+**是否提交说明文档：** ${caseData.document_url ? '是' : '否'}
+
+---
+
+# 严格评分要求
+
+1. **如果提示词少于50字或内容为测试内容** → "AI协同能力"不超过8分（满分25）
+2. **如果产品说明少于100字** → "产品功能与质量"不超过10分（满分30）
+3. **如果链接明显为测试链接（含test等）** → "提交材料完整性"不超过10分（满分20）
+4. **总分必须合理**：材料严重不足的情况下，总分不应超过50分
+
+---
+
+# 评估要求
+
+请严格按照以下JSON格式输出评估结果，不要输出任何其他内容：
+
+{
+  "totalScore": 85,
+  "dimensions": {
+    "completeness": {
+      "score": 18,
+      "maxScore": 20,
+      "comment": "具体评语，指出得分和扣分原因"
+    },
+    "product": {
+      "score": 25,
+      "maxScore": 30,
+      "comment": "评估核心功能和AI效果"
+    },
+    "aiCollaboration": {
+      "score": 20,
+      "maxScore": 25,
+      "comment": "评估问题定义、提示词设计、方案判断"
+    },
+    "delivery": {
+      "score": 12,
+      "maxScore": 15,
+      "comment": "评估任务拆解、测试验证、问题优化"
+    },
+    "learning": {
+      "score": 8,
+      "maxScore": 10,
+      "comment": "评估学习能力和创新性"
+    },
+    "documentation": {
+      "score": 2,
+      "maxScore": 5,
+      "comment": "文档加分项评估"
+    }
+  },
+  "strengths": [
+    "优势1：具体描述",
+    "优势2：具体描述",
+    "优势3：具体描述"
+  ],
+  "improvements": [
+    "不足1：具体描述和改进建议",
+    "不足2：具体描述和改进建议",
+    "不足3：具体描述和改进建议"
+  ],
+  "suggestions": [
+    "建议1：可落地的具体建议",
+    "建议2：可落地的具体建议",
+    "建议3：可落地的具体建议"
+  ],
+  "summary": "一句话总结评价"
+}
+
+请严格按照评分标准打分，客观公正。`;
+
+            // 调用智谱AI
+            const response = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${ZHIPU_CONFIG.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: ZHIPU_CONFIG.model,
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }],
+                    temperature: 0.3,
+                    max_tokens: 3000
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('AI API调用失败: ' + response.statusText);
+            }
+
+            const data = await response.json();
+            const resultText = data.choices[0].message.content;
+            
+            // 提取JSON
+            const jsonMatch = resultText.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+                throw new Error('AI返回格式错误');
+            }
+
+            return JSON.parse(jsonMatch[0]);
+        }
+
+        // 存储当前评估结果（用于保存）
+        let currentEvaluation = null;
+
+        // 显示评估结果
+        function displayEvaluation(evaluation) {
+            currentEvaluation = evaluation; // 保存到全局变量
+            const resultEl = document.getElementById('evaluationResult');
+            
+            const dimensionNames = {
+                completeness: '提交材料完整性',
+                product: '产品功能与质量',
+                aiCollaboration: 'AI协同能力',
+                delivery: '全流程交付能力',
+                learning: '学习能力与创新性',
+                documentation: '文档质量（加分）'
+            };
+
+            resultEl.innerHTML = `
+                <div class="score-display">
+                    <div class="score-number">${evaluation.totalScore}</div>
+                    <div class="score-label">总分</div>
+                    <div style="margin-top: 10px; color: #4a5568;">${evaluation.summary}</div>
+                </div>
+
+                <div class="evaluation-section">
+                    <h3>📊 各维度得分</h3>
+                    ${Object.entries(evaluation.dimensions).map(([key, dim]) => `
+                        <div class="evaluation-item">
+                            <div class="label">
+                                ${dimensionNames[key]}
+                                <span class="score">${dim.score}/${dim.maxScore}分</span>
+                            </div>
+                            <div class="comment">${dim.comment}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="evaluation-section">
+                    <h3>✨ 主要优势</h3>
+                    ${evaluation.strengths.map(s => `
+                        <div class="evaluation-item">
+                            <div class="comment">✓ ${s}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="evaluation-section">
+                    <h3>📈 改进建议</h3>
+                    ${evaluation.improvements.map(i => `
+                        <div class="evaluation-item">
+                            <div class="comment">• ${i}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="evaluation-section">
+                    <h3>💡 发展建议</h3>
+                    ${evaluation.suggestions.map(s => `
+                        <div class="evaluation-item">
+                            <div class="comment">${s}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <button class="save-btn" id="saveEvaluationBtn">
+                    💾 保存评估结果到数据库
+                </button>
+            `;
+            
+            // 绑定保存按钮事件
+            setTimeout(() => {
+                const saveBtn = document.getElementById('saveEvaluationBtn');
+                if (saveBtn) {
+                    saveBtn.onclick = async function() {
+                        await saveEvaluationHandler();
+                    };
+                }
+            }, 100);
+        }
+
+        // 保存评估结果处理函数
+        async function saveEvaluationHandler() {
+            console.log('🔍 saveEvaluationHandler 调用');
+            console.log('📋 selectedCase:', selectedCase);
+            console.log('📊 currentEvaluation:', currentEvaluation);
+
+            if (!selectedCase || !currentEvaluation) {
+                alert('❌ 没有可保存的评估结果');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveEvaluationBtn');
+            if (!saveBtn) {
+                console.error('❌ 找不到保存按钮元素');
+                return;
+            }
+
+            // 禁用按钮，显示加载状态
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '⏳ 保存中...';
+
+            console.log('💾 准备保存到数据库...');
+            console.log('🆔 案例ID:', selectedCase.id);
+            console.log('📈 评分:', currentEvaluation.totalScore);
+
+            try {
+                const updateData = {
+                    score: currentEvaluation.totalScore,
+                    feedback: JSON.stringify(currentEvaluation, null, 2),
+                    status: 'reviewed',
+                    reviewed_at: new Date().toISOString(),
+                    reviewer: 'AI评估系统'
+                };
+
+                console.log('📤 更新数据:', updateData);
+
+                const { data, error } = await caseSupabase
+                    .from('case_submissions')
+                    .update(updateData)
+                    .eq('id', selectedCase.id)
+                    .select(); // 添加 select() 以验证更新
+
+                console.log('📥 数据库响应 - data:', data);
+                console.log('📥 数据库响应 - error:', error);
+
+                if (error) {
+                    console.error('❌ 数据库错误:', error);
+                    throw error;
+                }
+
+                if (!data || data.length === 0) {
+                    console.warn('⚠️ 没有数据被更新，可能找不到对应的记录');
+                    throw new Error('未找到要更新的记录（ID: ' + selectedCase.id + '）');
+                }
+
+                console.log('✅ 保存成功！');
+                alert('✅ 评估结果已成功保存到数据库！');
+                saveBtn.innerHTML = '✓ 已保存';
+                saveBtn.style.background = '#48bb78';
+                
+                // 更新案例列表中的状态
+                selectedCase.status = 'reviewed';
+                selectedCase.score = currentEvaluation.totalScore;
+                console.log('🔄 重新加载案例列表...');
+                await loadCases(); // 重新加载列表
+                console.log('✅ 案例列表已刷新');
+                
+            } catch (error) {
+                console.error('❌ 保存失败:', error);
+                console.error('错误详情:', error.message);
+                console.error('错误对象:', error);
+                alert('❌ 保存失败: ' + error.message + '\n\n请按 F12 查看控制台获取详细错误信息');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '💾 保存评估结果到数据库';
+            }
+        }
+
+        // 保存评估结果（旧函数，保持兼容）
+        async function saveEvaluation(score, evaluationJson) {
+            if (!selectedCase) return;
+
+            try {
+                const evaluation = JSON.parse(evaluationJson);
+                
+                const { error } = await caseSupabase
+                    .from('case_submissions')
+                    .update({
+                        score: score,
+                        feedback: JSON.stringify(evaluation, null, 2),
+                        status: 'reviewed',
+                        reviewed_at: new Date().toISOString(),
+                        reviewer: 'AI评估系统'
+                    })
+                    .eq('id', selectedCase.id);
+
+                if (error) throw error;
+
+                alert('✅ 评估结果已保存！');
+                
+                // 刷新案例列表
+                await loadCases();
+                
+                // 更新当前选中的案例
+                selectedCase.score = score;
+                selectedCase.feedback = JSON.stringify(evaluation, null, 2);
+                
+            } catch (error) {
+                console.error('保存失败:', error);
+                alert('❌ 保存失败: ' + error.message);
+            }
+        }
+
+        // 显示已保存的评估
+        function showSavedEvaluation(caseData) {
+            try {
+                const evaluation = JSON.parse(caseData.feedback);
+                displayEvaluation(evaluation);
+                document.getElementById('evaluateBtn').textContent = '🔄 重新评估';
+            } catch (error) {
+                console.error('解析评估数据失败:', error);
+            }
+        }
+    </script>
+</body>
+</html>
