@@ -525,14 +525,18 @@
             // 案例基本信息
             content += `
                 <div class="case-info">
+                    ${caseData.name ? `
                     <div class="case-info-row">
                         <span class="case-info-label">姓名</span>
                         <span class="case-info-value">${caseData.name}</span>
                     </div>
+                    ` : ''}
+                    ${caseData.school ? `
                     <div class="case-info-row">
                         <span class="case-info-label">学校</span>
-                        <span class="case-info-value">${caseData.school || '未填写'}</span>
+                        <span class="case-info-value">${caseData.school}</span>
                     </div>
+                    ` : ''}
                     <div class="case-info-row">
                         <span class="case-info-label">案例名称</span>
                         <span class="case-info-value">${caseData.case_name}</span>
